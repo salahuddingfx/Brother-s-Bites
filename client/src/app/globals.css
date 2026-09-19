@@ -1,0 +1,526 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+html.dark {
+  --brand-black-rgb: 4 4 4;
+  --brand-yellow-rgb: 254 189 15;
+  --brand-yellow-hover-rgb: 229 169 13;
+  --brand-cream-rgb: 254 244 229;
+  --brand-surface-rgb: 10 10 10;
+  --brand-surface-light-rgb: 18 18 18;
+  --brand-surface-hover-rgb: 26 26 26;
+
+  --color-brand-black: #040404;
+  --color-brand-yellow: #FEBD0F;
+  --color-brand-yellow-hover: #E5A90D;
+  --color-brand-cream: #FEF4E5;
+  --color-brand-surface: #0A0A0A;
+  --color-brand-surface-light: #121212;
+  --color-brand-surface-hover: #1A1A1A;
+  --color-brand-border: rgba(254, 244, 229, 0.08);
+  --color-brand-border-hover: rgba(254, 189, 15, 0.3);
+}
+
+html.light {
+  --brand-black-rgb: 250 247 242;
+  --brand-yellow-rgb: 217 155 0;
+  --brand-yellow-hover-rgb: 184 131 0;
+  --brand-cream-rgb: 20 18 14;
+  --brand-surface-rgb: 240 234 225;
+  --brand-surface-light-rgb: 255 255 255;
+  --brand-surface-hover-rgb: 232 224 213;
+
+  --color-brand-black: #FAF7F2;
+  --color-brand-yellow: #D99B00;
+  --color-brand-yellow-hover: #B88300;
+  --color-brand-cream: #14120E;
+  --color-brand-surface: #F0EAE1;
+  --color-brand-surface-light: #FFFFFF;
+  --color-brand-surface-hover: #E8E0D5;
+  --color-brand-border: rgba(20, 18, 14, 0.12);
+  --color-brand-border-hover: rgba(217, 155, 0, 0.4);
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(254, 189, 15, 0.5) var(--color-brand-black);
+}
+
+html.light {
+  scrollbar-color: rgba(217, 155, 0, 0.6) var(--color-brand-black);
+}
+
+/* ==========================================================================
+   CUSTOM WEBKIT SCROLLBAR (Chrome, Edge, Safari, Opera)
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-brand-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(254, 189, 15, 0.45);
+  border-radius: 9999px;
+  border: 2px solid var(--color-brand-black);
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #FEBD0F;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-brand-black);
+}
+
+/* Light mode webkit scrollbar */
+html.light ::-webkit-scrollbar-thumb {
+  background-color: rgba(217, 155, 0, 0.5);
+  border: 2px solid var(--color-brand-black);
+  background-clip: padding-box;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background-color: #D99B00;
+}
+
+body {
+  background-color: var(--color-brand-black);
+  color: var(--color-brand-cream);
+  font-family: var(--font-body), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+}
+
+/* ==========================================================================
+   CONTAINER SYSTEM
+   Balanced maximum width for all screens (including 4K & TVs)
+   ========================================================================== */
+
+.container-bb,
+.container-custom {
+  width: 100%;
+  max-width: 1340px;
+  margin-inline: auto;
+  padding-inline: 1rem; /* 16px mobile */
+}
+
+@media (min-width: 640px) {
+  .container-bb,
+  .container-custom {
+    padding-inline: 1.5rem; /* 24px */
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-bb,
+  .container-custom {
+    padding-inline: 2rem; /* 32px */
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-bb,
+  .container-custom {
+    max-width: 1400px;
+  }
+}
+
+/* Intentional Content Widths */
+.content-prose {
+  max-width: 65ch;
+}
+
+.content-intro {
+  max-width: 640px;
+}
+
+.content-hero {
+  max-width: 720px;
+}
+
+/* ==========================================================================
+   SECTION SPACING & RHYTHM
+   Mobile: 56px-72px | Tablet: 72px-88px | Desktop: 88px-112px
+   ========================================================================== */
+
+.section-padding {
+  padding-block: 3.5rem; /* 56px mobile */
+}
+
+@media (min-width: 640px) {
+  .section-padding {
+    padding-block: 4.5rem; /* 72px */
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-block: 6rem; /* 96px */
+  }
+}
+
+.section-padding-sm {
+  padding-block: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding-sm {
+    padding-block: 3.5rem;
+  }
+}
+
+.section-padding-hero {
+  padding-top: 7rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding-hero {
+    padding-top: 9rem;
+    padding-bottom: 7rem;
+  }
+}
+
+/* ==========================================================================
+   TYPOGRAPHY SYSTEM
+   ========================================================================== */
+
+.eyebrow-bb {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-brand-yellow);
+}
+
+.heading-display {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.heading-page {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.heading-lg,
+.heading-section {
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.heading-md {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.heading-sm,
+.heading-card {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.heading-xl {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+/* ==========================================================================
+   BUTTON SYSTEM
+   44px-48px height, consistent padding, crisp typography, rich interactive feedback
+   ========================================================================== */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.875rem; /* 46px */
+  padding-inline: 1.75rem;
+  background-color: var(--color-brand-yellow);
+  color: #040404 !important; /* Always crisp dark black for maximum contrast on golden yellow */
+  font-weight: 800;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 0.5rem; /* 8px */
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-brand-yellow-hover);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px rgb(var(--brand-yellow-rgb) / 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.875rem; /* 46px */
+  padding-inline: 1.75rem;
+  background-color: var(--color-brand-surface-light);
+  color: var(--color-brand-cream);
+  border: 1.5px solid var(--color-brand-border);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 0.5rem; /* 8px */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-brand-yellow);
+  color: var(--color-brand-yellow);
+  background-color: rgb(var(--brand-yellow-rgb) / 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgb(var(--brand-yellow-rgb) / 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+html.light .btn-secondary {
+  border-color: rgba(20, 18, 14, 0.18);
+  background-color: #FFFFFF;
+}
+
+html.light .btn-secondary:hover {
+  border-color: var(--color-brand-yellow);
+  color: var(--color-brand-yellow-hover);
+  background-color: rgba(217, 155, 0, 0.08);
+}
+
+.btn-outline-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.875rem;
+  padding-inline: 1.75rem;
+  background-color: transparent;
+  color: var(--color-brand-cream);
+  border: 1.5px solid var(--color-brand-border);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 0.5rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-outline-white:hover {
+  border-color: var(--color-brand-cream);
+  background-color: var(--color-brand-cream);
+  color: var(--color-brand-black);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   CARD & SURFACE SYSTEM
+   Subtle 1px border, tone separation, restrained radius
+   ========================================================================== */
+
+.card-bb,
+.card-dark {
+  background-color: var(--color-brand-surface-light);
+  border: 1px solid var(--color-brand-border);
+  border-radius: 0.75rem; /* 12px */
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card-bb:hover,
+.card-dark:hover {
+  border-color: var(--color-brand-border-hover);
+}
+
+html.light .card-bb,
+html.light .card-dark {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-color: rgba(20, 18, 14, 0.1);
+}
+
+html.light .card-bb:hover,
+html.light .card-dark:hover {
+  box-shadow: 0 8px 30px rgba(217, 155, 0, 0.12);
+  border-color: rgba(217, 155, 0, 0.4);
+}
+
+/* ==========================================================================
+   SUBTLE BRAND UTILITIES
+   ========================================================================== */
+
+.gold-line {
+  width: 2.5rem;
+  height: 2px;
+  background-color: var(--color-brand-yellow);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Subtle textural dot-matrix / grain overlay */
+.bg-texture-pattern {
+  background-image: radial-gradient(rgba(254, 244, 229, 0.06) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+html.light .bg-texture-pattern {
+  background-image: radial-gradient(rgba(20, 18, 14, 0.05) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Scrollbar utilities */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(254, 189, 15, 0.4);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(254, 189, 15, 0.8);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(254, 189, 15, 0.4) transparent;
+}
+
+/* ==========================================================================
+   OFFICIAL INVOICE & RECEIPT PRINT ENGINE
+   Ensures clean, single-page print without website background bleeding
+   ========================================================================== */
+
+@page {
+  size: A4 portrait;
+  margin: 10mm 12mm;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  header,
+  footer,
+  main,
+  nav,
+  aside,
+  .print\:hidden {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Make only the invoice modal container visible and clean */
+  #printable-invoice-container,
+  #printable-invoice-container * {
+    visibility: visible !important;
+  }
+
+  #printable-invoice-container {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    transform: none !important;
+  }
+
+  #printable-invoice {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  #printable-invoice table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  #printable-invoice th,
+  #printable-invoice td {
+    padding: 6pt 4pt !important;
+  }
+
+  #printable-invoice .bg-slate-50 {
+    background-color: #f8fafc !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
