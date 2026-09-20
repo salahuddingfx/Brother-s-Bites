@@ -35,6 +35,7 @@ import {
   Truck,
   Plus,
   Settings,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -42,6 +43,7 @@ import api from '@/lib/api';
 import { Order, MenuItem } from '@/types';
 import { cn } from '@/lib/utils';
 import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+import ReviewModal from '@/components/reviews/ReviewModal';
 
 export default function CustomerAccountPage() {
   const { user, loading: authLoading, updateProfile, logout } = useAuth();
@@ -53,6 +55,8 @@ export default function CustomerAccountPage() {
   const [syncingOrders, setSyncingOrders] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<InvoiceOrderData | null>(null);
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+  const [reviewToast, setReviewToast] = useState('');
 
   // Orders Filter & Search
   const [orderFilter, setOrderFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all');
@@ -391,6 +395,21 @@ export default function CustomerAccountPage() {
           </div>
         </motion.div>
 
+        {/* Review Toast Feedback */}
+        {reviewToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-2xl text-xs flex items-center justify-between gap-3 font-medium shadow-lg shadow-amber-500/5"
+          >
+            <div className="flex items-center gap-2">
+              <Star size={16} className="shrink-0 text-amber-400 fill-amber-400" />
+              <span>{reviewToast}</span>
+            </div>
+            <span className="text-[11px] text-amber-400/70">Verified Customer Review</span>
+          </motion.div>
+        )}
+
         {/* Sync Toast Feedback */}
         {syncMessage && (
           <motion.div
@@ -674,6 +693,17 @@ export default function CustomerAccountPage() {
                           ৳{ord.totalAmount}
                         </span>
                         <div className="flex items-center gap-2">
+                          {ord.status === 'delivered' && (
+                            <button
+                              type="button"
+                              onClick={() => setReviewOrder(ord)}
+                              className="btn-secondary !h-8 px-2.5 text-xs font-bold gap-1 text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                              title="Leave a verified review for this order"
+                            >
+                              <Star size={12} className="text-amber-400 fill-amber-400" />
+                              <span>Review</span>
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => setSelectedInvoiceOrder(ord as unknown as InvoiceOrderData)}
@@ -898,6 +928,18 @@ export default function CustomerAccountPage() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2">
+                          {ord.status === 'delivered' && (
+                            <button
+                              type="button"
+                              onClick={() => setReviewOrder(ord)}
+                              className="btn-secondary !h-8.5 px-3 text-xs font-bold gap-1 text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                              title="Leave a verified review for this order"
+                            >
+                              <Star size={13} className="text-amber-400 fill-amber-400" />
+                              <span>Review Order</span>
+                            </button>
+                          )}
+
                           <Link
                             href={`/track-order?query=${ord.orderNumber}`}
                             className="btn-secondary !h-8.5 px-3.5 text-xs font-semibold gap-1.5"
@@ -1107,6 +1149,22 @@ export default function CustomerAccountPage() {
             order={selectedInvoiceOrder}
             isOpen={!!selectedInvoiceOrder}
             onClose={() => setSelectedInvoiceOrder(null)}
+          />
+        )}
+
+        {/* Review Modal for Verified Delivered Orders */}
+        {reviewOrder && (
+          <ReviewModal
+            isOpen={!!reviewOrder}
+            onClose={() => setReviewOrder(null)}
+            initialOrderNumber={reviewOrder.orderNumber}
+            initialDish={reviewOrder.items?.[0]?.name || ''}
+            onSuccess={() => {
+              const orderNum = reviewOrder.orderNumber;
+              setReviewOrder(null);
+              setReviewToast(`Thank you! Your verified review for order #${orderNum} has been submitted.`);
+              setTimeout(() => setReviewToast(''), 5000);
+            }}
           />
         )}
       </div>
