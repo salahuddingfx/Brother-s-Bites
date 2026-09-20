@@ -134,7 +134,7 @@ export default function AboutPage() {
                     src={member.image}
                     alt={member.name}
                     fill
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute top-3 left-3 bg-brand-black/80 backdrop-blur-md px-3 py-1 rounded-full border border-brand-yellow/30 flex items-center gap-1.5 shadow-lg">
