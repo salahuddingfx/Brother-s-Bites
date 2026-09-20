@@ -68,7 +68,7 @@ const seed = async (): Promise<void> => {
         { day: 'Saturday', open: '10:00 AM', close: '12:00 AM', isClosed: false },
       ],
       grandOpening: {
-        isEnabled: true,
+        isEnabled: false,
         title: 'Grand Opening',
         date: '2024-01-01',
         description: 'Brother\'s Bites is now open! Come and taste the difference.',

@@ -21,7 +21,7 @@ export default function GrandOpeningSection() {
   const [description, setDescription] = useState<string>(
     "Join us at Marine Drive, Sonar Para Beach for the grand opening of Brother's Bites. Experience fresh signature bites, chilled drinks, and brotherhood by the sea."
   );
-  const [isEnabled, setIsEnabled] = useState<boolean>(true);
+  const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
