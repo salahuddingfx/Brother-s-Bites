@@ -34,6 +34,31 @@ export default function LocationPage() {
           aspectRatio="aspect-[21/9] min-h-[380px]"
         />
 
+        {/* 1-Tap Google Maps Review Callout */}
+        <div className="rounded-2xl bg-gradient-to-r from-amber-500/15 via-brand-surface-light to-brand-surface-light border border-amber-500/30 p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <MapPin size={24} />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-brand-cream">
+                Visited Brother&apos;s Bites on Marine Drive?
+              </h3>
+              <p className="text-xs text-brand-cream/70 mt-0.5">
+                Share your moments, food photos, and rate us 5 stars on Google Maps.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://g.page/r/CZY9cCNvq2_GEAE/review"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary !h-10 px-5 text-xs gap-2 shrink-0 shadow-md"
+          >
+            <span>⭐ Write a Google Review</span>
+          </a>
+        </div>
+
         {/* Information Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Address */}

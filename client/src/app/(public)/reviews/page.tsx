@@ -135,13 +135,25 @@ export default function ReviewsPage() {
               <p className="text-xs text-brand-cream/50 mb-3.5 max-w-xs">
                 Enter your order ID or phone number to submit your verified review.
               </p>
-              <button
-                onClick={() => setModalOpen(true)}
-                className="btn-primary !h-10 px-5 text-xs gap-2 shadow-md w-full justify-center"
-              >
-                <MessageSquarePlus size={15} />
-                <span>RATE YOUR ORDER</span>
-              </button>
+              <div className="w-full space-y-2">
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="btn-primary !h-10 px-5 text-xs gap-2 shadow-md w-full justify-center"
+                >
+                  <MessageSquarePlus size={15} />
+                  <span>RATE YOUR ORDER</span>
+                </button>
+
+                <a
+                  href="https://g.page/r/CZY9cCNvq2_GEAE/review"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary !h-9 px-4 text-xs gap-2 w-full justify-center border-amber-500/30 hover:border-amber-400 text-amber-400"
+                >
+                  <Star size={13} className="fill-amber-400" />
+                  <span>Review on Google Maps</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
