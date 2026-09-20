@@ -133,25 +133,55 @@ interface SettingsForm {
   };
 }
 
+const to24Hour = (timeStr: string): string => {
+  if (!timeStr) return '15:00';
+  const clean = timeStr.trim();
+  if (/^\d{2}:\d{2}$/.test(clean)) return clean;
+  const match = clean.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return '15:00';
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2];
+  const ampm = match[3]?.toUpperCase();
+  if (ampm === 'PM' && hours < 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  return `${hours.toString().padStart(2, '0')}:${minutes}`;
+};
+
 const defaultForm: SettingsForm = {
-  businessName: '',
-  tagline: '',
-  phones: [''],
-  whatsapp: '',
-  instagram: '',
-  address: { street: '', city: '', state: '', country: '', zip: '' },
-  googleMapsUrl: '',
+  businessName: "Brother's Bites",
+  tagline: 'BITES • SIPS • BROTHERHOOD',
+  phones: ['+8801627817436'],
+  whatsapp: '+8801627817436',
+  instagram: 'brothersbites.bd',
+  address: {
+    street: 'Marine Drive, Sonar Para Beach',
+    city: "Cox's Bazar",
+    state: 'Chittagong',
+    country: 'Bangladesh',
+    zip: '4700',
+  },
+  googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319',
   openingHours: [
-    { day: 'Sunday', open: '09:00', close: '22:00', isClosed: false },
-    { day: 'Monday', open: '09:00', close: '22:00', isClosed: false },
-    { day: 'Tuesday', open: '09:00', close: '22:00', isClosed: false },
-    { day: 'Wednesday', open: '09:00', close: '22:00', isClosed: false },
-    { day: 'Thursday', open: '09:00', close: '22:00', isClosed: false },
-    { day: 'Friday', open: '09:00', close: '22:00', isClosed: false },
-    { day: 'Saturday', open: '09:00', close: '22:00', isClosed: false },
+    { day: 'Sunday', open: '15:00', close: '00:00', isClosed: false },
+    { day: 'Monday', open: '15:00', close: '00:00', isClosed: false },
+    { day: 'Tuesday', open: '15:00', close: '00:00', isClosed: false },
+    { day: 'Wednesday', open: '15:00', close: '00:00', isClosed: false },
+    { day: 'Thursday', open: '15:00', close: '00:00', isClosed: false },
+    { day: 'Friday', open: '10:00', close: '00:00', isClosed: false },
+    { day: 'Saturday', open: '10:00', close: '00:00', isClosed: false },
   ],
-  grandOpening: { enabled: false, title: '', date: '', description: '', ctaText: '' },
-  socialLinks: { facebook: '', instagram: '', tiktok: '' },
+  grandOpening: {
+    enabled: false,
+    title: 'Grand Opening',
+    date: '',
+    description: "Brother's Bites is now open on Marine Drive, Sonar Para Beach! Come taste our fresh street bites and beachside sips.",
+    ctaText: 'Explore Menu',
+  },
+  socialLinks: {
+    facebook: 'https://facebook.com/brothersbites.bd',
+    instagram: 'https://instagram.com/brothersbites.bd',
+    tiktok: 'https://tiktok.com/@brothersbites.bd',
+  },
   hero: {
     isEnabled: true,
     locationPill: "Marine Drive • Cox's Bazar",
@@ -181,10 +211,14 @@ const defaultForm: SettingsForm = {
     isEnabled: true,
     eyebrow: 'Chilled & Warm Sips',
     title: 'REFRESHING DRINKS',
-    subtitle: 'All handcrafted drink servings are standardized to 100g for optimal flavor.',
+    subtitle: 'All handcrafted drink servings are standardized for optimal flavor.',
     items: [
-      { name: 'Signature Caramel Tea', description: 'Slow-cooked sugar caramel infused with creamy cow milk and rich tea leaves.', servingSize: '100g serving', price: 40, icon: 'CupSoda' },
-      { name: 'Creamy Milk Coffee', description: 'Smooth coffee blend brewed with fresh whole milk.', servingSize: '100g serving', price: 50, icon: 'Coffee' },
+      { name: 'Lemon Chill', description: 'Refreshing chilled lemon drink infused with mint and ice.', servingSize: '1 glass', price: 59, icon: 'CupSoda' },
+      { name: 'Mango Magic', description: 'Sweet, refreshing mango drink crafted from ripe mango pulp.', servingSize: '1 glass', price: 99, icon: 'CupSoda' },
+      { name: 'Dragoo Blast', description: 'Bold and refreshing exotic dragon-fruit drink with vibrant coastal vibes.', servingSize: '1 glass', price: 109, icon: 'CupSoda' },
+      { name: 'Coco Delight', description: 'Creamy, refreshing coconut drink blended for the ultimate beach chill.', servingSize: '1 glass', price: 129, icon: 'CupSoda' },
+      { name: 'Freshly Brewed Tea', description: 'Freshly brewed aromatic hot tea made with pure milk.', servingSize: '1 cup', price: 20, icon: 'Coffee' },
+      { name: 'Rich & Aromatic Coffee', description: 'Rich, smooth, and aromatic coffee brewed with fresh cow milk.', servingSize: '1 cup', price: 40, icon: 'Coffee' },
     ],
     ctaLabel: 'EXPLORE ALL DRINKS',
     ctaLink: '/menu',
@@ -215,8 +249,8 @@ const defaultForm: SettingsForm = {
     eyebrow: "Marine Drive, Cox's Bazar",
     title: 'FIND OUR RESTAURANT',
     subtitle: 'Located right by the scenic coastal stretch of Sonar Para Beach.',
-    embedMapUrl: '',
-    directionsUrl: '',
+    embedMapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d232.34524772674902!2d92.04676015661319!3d21.290302964726862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc5b2179fe74d%3A0xc66fab6f23703d96!2sBrother%27s%20Bites!5e0!3m2!1sen!2sbd!4v1789874032852!5m2!1sen!2sbd',
+    directionsUrl: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319',
   },
   contactCTA: {
     isEnabled: true,
@@ -253,37 +287,36 @@ export default function AdminSettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordUpdating, setPasswordUpdating] = useState(false);
   const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handlePasswordChange = async (e: FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordMsg(null);
-
     if (newPassword.length < 6) {
-      setPasswordMsg({ type: 'error', text: 'New password must be at least 6 characters.' });
+      setPasswordMsg({ type: 'error', text: 'New password must be at least 6 characters' });
       return;
     }
-
     if (newPassword !== confirmPassword) {
-      setPasswordMsg({ type: 'error', text: 'New passwords do not match.' });
+      setPasswordMsg({ type: 'error', text: 'Passwords do not match' });
       return;
     }
 
     setPasswordUpdating(true);
+    setPasswordMsg(null);
     try {
-      await api.put('/auth/change-password', {
+      await api.patch('/auth/change-password', {
         currentPassword,
         newPassword,
       });
-      setPasswordMsg({ type: 'success', text: 'Password updated successfully!' });
+      setPasswordMsg({ type: 'success', text: 'Password changed successfully' });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
       setPasswordMsg({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to update password. Please check your current password.',
+        text: err.response?.data?.message || 'Failed to change password',
       });
     } finally {
       setPasswordUpdating(false);
@@ -295,21 +328,27 @@ export default function AdminSettingsPage() {
       .get('/settings')
       .then((res) => {
         const data: Settings = res.data.data || res.data;
+        const normalizedHours = (data.openingHours?.length === 7 ? data.openingHours : defaultForm.openingHours).map((h) => ({
+          ...h,
+          open: to24Hour(h.open),
+          close: to24Hour(h.close),
+        }));
+
         setForm({
-          businessName: data.businessName || '',
-          tagline: data.tagline || '',
-          phones: data.phone?.length ? data.phone : [''],
-          whatsapp: data.whatsapp || '',
-          instagram: data.instagram || '',
+          businessName: data.businessName || defaultForm.businessName,
+          tagline: data.tagline || defaultForm.tagline,
+          phones: data.phone?.length ? data.phone : defaultForm.phones,
+          whatsapp: data.whatsapp || defaultForm.whatsapp,
+          instagram: data.instagram || defaultForm.instagram,
           address: {
-            street: data.address?.street || '',
-            city: data.address?.city || '',
-            state: data.address?.state || '',
-            country: data.address?.country || '',
-            zip: data.address?.zip || '',
+            street: data.address?.street || defaultForm.address.street,
+            city: data.address?.city || defaultForm.address.city,
+            state: data.address?.state || defaultForm.address.state,
+            country: data.address?.country || defaultForm.address.country,
+            zip: data.address?.zip || defaultForm.address.zip,
           },
-          googleMapsUrl: data.googleMapsUrl || '',
-          openingHours: data.openingHours?.length === 7 ? data.openingHours : defaultForm.openingHours,
+          googleMapsUrl: data.googleMapsUrl || defaultForm.googleMapsUrl,
+          openingHours: normalizedHours,
           grandOpening: {
             enabled: data.grandOpening?.isEnabled || false,
             title: data.grandOpening?.title || '',
