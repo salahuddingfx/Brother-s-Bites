@@ -19,7 +19,8 @@ import api from '@/lib/api';
 import { Review, ReviewStats } from '@/types';
 import StarRating from '@/components/common/StarRating';
 import ReviewCardSkeleton from '@/components/skeletons/ReviewCardSkeleton';
-import ReviewModal from '@/components/reviews/ReviewModal';
+import dynamic from 'next/dynamic';
+const ReviewModal = dynamic(() => import('@/components/reviews/ReviewModal'), { ssr: false });
 import { cn } from '@/lib/utils';
 
 export default function ReviewsPage() {

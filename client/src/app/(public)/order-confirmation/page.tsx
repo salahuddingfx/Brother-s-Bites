@@ -7,7 +7,9 @@ import { motion } from 'framer-motion';
 import { CheckCircle, MapPin, Phone, Receipt, Navigation } from 'lucide-react';
 import api from '@/lib/api';
 import Skeleton from '@/components/ui/skeleton';
-import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+import dynamic from 'next/dynamic';
+import type { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+const InvoiceModal = dynamic(() => import('@/components/orders/InvoiceModal'), { ssr: false });
 
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();

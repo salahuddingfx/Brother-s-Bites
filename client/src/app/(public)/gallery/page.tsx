@@ -6,7 +6,8 @@ import { ImageIcon } from 'lucide-react';
 import api from '@/lib/api';
 import GalleryGridSkeleton from '@/components/skeletons/GalleryGridSkeleton';
 import EmptyState from '@/components/common/EmptyState';
-import ImageLightboxModal from '@/components/common/ImageLightboxModal';
+import dynamic from 'next/dynamic';
+const ImageLightboxModal = dynamic(() => import('@/components/common/ImageLightboxModal'), { ssr: false });
 import type { GalleryImage } from '@/types';
 import { cn } from '@/lib/utils';
 

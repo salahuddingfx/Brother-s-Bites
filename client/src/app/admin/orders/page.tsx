@@ -7,7 +7,9 @@ import { Order } from '@/types';
 import { cn } from '@/lib/utils';
 import { Eye, ChevronLeft, ChevronRight, Receipt, Radio, BellRing } from 'lucide-react';
 import AdminTableSkeleton from '@/components/skeletons/AdminTableSkeleton';
-import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+import dynamic from 'next/dynamic';
+import type { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+const InvoiceModal = dynamic(() => import('@/components/orders/InvoiceModal'), { ssr: false });
 import { useLiveSSE } from '@/hooks/useLiveSSE';
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {

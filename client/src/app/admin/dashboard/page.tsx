@@ -31,7 +31,9 @@ import { cn } from '@/lib/utils';
 import AnimatedNumber from '@/components/common/AnimatedNumber';
 import Skeleton from '@/components/ui/skeleton';
 import AdminDashboardSkeleton from '@/components/skeletons/AdminDashboardSkeleton';
-import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+import dynamic from 'next/dynamic';
+import type { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+const InvoiceModal = dynamic(() => import('@/components/orders/InvoiceModal'), { ssr: false });
 import { useLiveSSE } from '@/hooks/useLiveSSE';
 
 interface VisitorAnalyticsData {
