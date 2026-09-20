@@ -154,7 +154,7 @@ export const me = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const user = req.user;
     if (!user) {
-      sendError(res, 'User not found', 404);
+      sendSuccess(res, null, 200, 'Guest session');
       return;
     }
     sendSuccess(res, {

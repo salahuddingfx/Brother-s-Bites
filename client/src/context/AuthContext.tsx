@@ -47,8 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
     const loadInitialUser = async () => {
       try {
-        const { data } = await api.get('/auth/me');
-        if (isMounted) setUser(data.data || data);
+        const res = await api.get('/auth/me');
+        const userData = res.data?.data;
+        if (isMounted) {
+          setUser(userData && userData._id ? userData : null);
+        }
       } catch {
         if (isMounted) setUser(null);
       } finally {
@@ -128,8 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const { data } = await api.get('/auth/me');
-      setUser(data.data || data);
+      const res = await api.get('/auth/me');
+      const userData = res.data?.data;
+      setUser(userData && userData._id ? userData : null);
     } catch {
       setUser(null);
     }
