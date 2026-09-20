@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Clock, Navigation } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';
+import CustomMapEmbed from '@/components/common/CustomMapEmbed';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 
@@ -12,8 +13,8 @@ const defaultSection: Settings['location'] = {
   eyebrow: "Marine Drive, Cox's Bazar",
   title: 'FIND OUR RESTAURANT',
   subtitle: 'Located right by the scenic coastal stretch of Sonar Para Beach.',
-  embedMapUrl: 'https://maps.google.com/maps?q=Brother%27s+Bites,+Marine+Drive,+Sonar+Para+Beach,+Cox%27s+Bazar&t=&z=15&ie=UTF8&iwloc=&output=embed',
-  directionsUrl: 'https://share.google/c3GkhEDd0hLvdo7Vm',
+  embedMapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d232.34524772674902!2d92.04676015661319!3d21.290302964726862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc5b2179fe74d%3A0xc66fab6f23703d96!2sBrother%27s%20Bites!5e0!3m2!1sen!2sbd!4v1789874032852!5m2!1sen!2sbd',
+  directionsUrl: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319',
 };
 
 export default function LocationSection() {
@@ -85,18 +86,11 @@ export default function LocationSection() {
             viewport={{ once: true }}
             className="lg:col-span-6 order-2 lg:order-1"
           >
-            <div className="card-bb overflow-hidden aspect-[4/3] w-full border-white/10">
-              <iframe
-                src={section.embedMapUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Brother's Bites Location Map"
-              />
-            </div>
+            <CustomMapEmbed
+              embedUrl={section.embedMapUrl}
+              directionsUrl={section.directionsUrl}
+              aspectRatio="aspect-[4/3] min-h-[320px]"
+            />
           </motion.div>
 
           <motion.div

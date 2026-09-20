@@ -124,7 +124,7 @@ const settingsSchema = new Schema<ISettings>(
       country: { type: String, default: '' },
       zip: { type: String, default: '' },
     },
-    googleMapsUrl: { type: String, default: 'https://share.google/c3GkhEDd0hLvdo7Vm' },
+    googleMapsUrl: { type: String, default: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319' },
     openingHours: [
       {
         day: { type: String },
@@ -231,8 +231,8 @@ const settingsSchema = new Schema<ISettings>(
       eyebrow: { type: String, default: "Marine Drive, Cox's Bazar" },
       title: { type: String, default: 'FIND OUR RESTAURANT' },
       subtitle: { type: String, default: 'Located right by the scenic coastal stretch of Sonar Para Beach.' },
-      embedMapUrl: { type: String, default: 'https://maps.google.com/maps?q=Brother%27s+Bites,+Marine+Drive,+Sonar+Para+Beach,+Cox%27s+Bazar&t=&z=15&ie=UTF8&iwloc=&output=embed' },
-      directionsUrl: { type: String, default: 'https://share.google/c3GkhEDd0hLvdo7Vm' },
+      embedMapUrl: { type: String, default: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d232.34524772674902!2d92.04676015661319!3d21.290302964726862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc5b2179fe74d%3A0xc66fab6f23703d96!2sBrother%27s%20Bites!5e0!3m2!1sen!2sbd!4v1789874032852!5m2!1sen!2sbd' },
+      directionsUrl: { type: String, default: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319' },
     },
     contactCTA: {
       isEnabled: { type: Boolean, default: true },

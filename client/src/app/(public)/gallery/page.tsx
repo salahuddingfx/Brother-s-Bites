@@ -12,6 +12,30 @@ import { cn } from '@/lib/utils';
 
 const TABS = ['All', 'Food', 'Place', 'Vibe'] as const;
 
+const DEFAULT_GALLERY: GalleryImage[] = [
+  { _id: 'def-1', title: 'Main Chef Ahammad Bin Kashem', category: 'vibe', image: '/images/team/chef-ahammad.jpg', isActive: true, sortOrder: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-2', title: 'Assistant Chef Sahed Mostafa', category: 'vibe', image: '/images/team/assistant-chef-sahed.jpg', isActive: true, sortOrder: 2, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-3', title: 'Live Kitchen Searing & Prep', category: 'food', image: '/images/team/kitchen-action.jpg', isActive: true, sortOrder: 3, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-4', title: 'The Brotherhood Kitchen Crew', category: 'vibe', image: '/images/team/team-brotherhood.jpg', isActive: true, sortOrder: 4, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-5', title: 'Live Street Cooking Art', category: 'food', image: '/images/shop/shop-1.jpg', isActive: true, sortOrder: 5, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-6', title: 'Fresh Hot Snacks Preparation', category: 'food', image: '/images/shop/shop-2.jpg', isActive: true, sortOrder: 6, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-7', title: 'Chef Specialty Bites', category: 'food', image: '/images/shop/shop-3.jpg', isActive: true, sortOrder: 7, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-8', title: 'Evening Service Prep', category: 'vibe', image: '/images/shop/shop-4.jpg', isActive: true, sortOrder: 8, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-9', title: 'Beachside Food Stand', category: 'place', image: '/images/shop/shop-5.jpg', isActive: true, sortOrder: 9, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-10', title: 'Fresh Food & Beverage Counter', category: 'place', image: '/images/shop/shop-6.jpg', isActive: true, sortOrder: 10, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-11', title: 'Marine Drive Sonar Para Beach Stand', category: 'place', image: '/images/shop/shop-7.jpg', isActive: true, sortOrder: 11, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-12', title: 'Live Order Serving', category: 'food', image: '/images/shop/shop-8.jpg', isActive: true, sortOrder: 12, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-13', title: 'Fresh Street Bites & Snacks', category: 'food', image: '/images/shop/shop-9.jpg', isActive: true, sortOrder: 13, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-14', title: 'Evening Beachside Ambience', category: 'vibe', image: '/images/shop/shop-10.jpg', isActive: true, sortOrder: 14, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-15', title: 'Fresh Ingredients Display', category: 'food', image: '/images/shop/shop-11.jpg', isActive: true, sortOrder: 15, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-16', title: 'Golden Crispy Fry Counter', category: 'food', image: '/images/shop/shop-12.jpg', isActive: true, sortOrder: 16, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-17', title: 'Beachside Walkway View', category: 'place', image: '/images/shop/shop-13.jpg', isActive: true, sortOrder: 17, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-18', title: 'Golden Sunset at Sonar Para', category: 'place', image: '/images/shop/shop-14.jpg', isActive: true, sortOrder: 18, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-19', title: 'Night Lights & Street Gathering', category: 'vibe', image: '/images/shop/shop-15.jpg', isActive: true, sortOrder: 19, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-20', title: 'Ocean Breeze Dining Spot', category: 'place', image: '/images/shop/shop-16.jpg', isActive: true, sortOrder: 20, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-21', title: 'Brotherhood Community Moments', category: 'vibe', image: '/images/shop/shop-17.jpg', isActive: true, sortOrder: 21, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+
 export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [activeTab, setActiveTab] = useState<string>('All');
@@ -24,9 +48,10 @@ export default function GalleryPage() {
       try {
         setLoading(true);
         const res = await api.get('/gallery');
-        setImages(res.data.data || []);
+        const list = res.data.data || [];
+        setImages(list.length > 0 ? list : DEFAULT_GALLERY);
       } catch {
-        // fallback
+        setImages(DEFAULT_GALLERY);
       } finally {
         setLoading(false);
       }

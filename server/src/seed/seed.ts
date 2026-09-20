@@ -51,13 +51,13 @@ const seed = async (): Promise<void> => {
       whatsapp: '+8801712345678',
       instagram: 'brothersbites',
       address: {
-        street: '123 Food Street',
-        city: 'Dhaka',
-        state: 'Dhaka',
+        street: 'Marine Drive, Sonar Para Beach',
+        city: "Cox's Bazar",
+        state: 'Chittagong',
         country: 'Bangladesh',
-        zip: '1200',
+        zip: '4700',
       },
-      googleMapsUrl: 'https://maps.google.com/?q=23.8103,90.4125',
+      googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319',
       openingHours: [
         { day: 'Sunday', open: '3:00 PM', close: '12:00 AM', isClosed: false },
         { day: 'Monday', open: '3:00 PM', close: '12:00 AM', isClosed: false },
@@ -142,8 +142,8 @@ const seed = async (): Promise<void> => {
         eyebrow: "Marine Drive, Cox's Bazar",
         title: 'FIND OUR RESTAURANT',
         subtitle: 'Located right by the scenic coastal stretch of Sonar Para Beach.',
-        embedMapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.0!2d91.9!3d21.4!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDI0JzAwLjAiTiA5McKwNTQnMDAuMCJF!5e0!3m2!1sen!2sbd!4v1234567890',
-        directionsUrl: "https://www.google.com/maps/search/Marine+Drive+Sonar+Para+Beach+Cox's+Bazar",
+        embedMapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d232.34524772674902!2d92.04676015661319!3d21.290302964726862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc5b2179fe74d%3A0xc66fab6f23703d96!2sBrother%27s%20Bites!5e0!3m2!1sen!2sbd!4v1789874032852!5m2!1sen!2sbd',
+        directionsUrl: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319',
       },
       contactCTA: {
         isEnabled: true,
@@ -262,6 +262,34 @@ const seed = async (): Promise<void> => {
       sortOrder: 1,
     });
     console.log('Default offer created');
+
+    // Create default gallery photos (all 21 real shop & team photos)
+    const galleryItems = [
+      { title: 'Main Chef Ahammad Bin Kashem', category: 'vibe', image: '/images/team/chef-ahammad.jpg', sortOrder: 1 },
+      { title: 'Assistant Chef Sahed Mostafa', category: 'vibe', image: '/images/team/assistant-chef-sahed.jpg', sortOrder: 2 },
+      { title: 'Live Kitchen Searing & Prep', category: 'food', image: '/images/team/kitchen-action.jpg', sortOrder: 3 },
+      { title: 'The Brotherhood Kitchen Crew', category: 'vibe', image: '/images/team/team-brotherhood.jpg', sortOrder: 4 },
+      { title: 'Live Street Cooking Art', category: 'food', image: '/images/shop/shop-1.jpg', sortOrder: 5 },
+      { title: 'Fresh Hot Snacks Preparation', category: 'food', image: '/images/shop/shop-2.jpg', sortOrder: 6 },
+      { title: 'Chef Specialty Bites', category: 'food', image: '/images/shop/shop-3.jpg', sortOrder: 7 },
+      { title: 'Evening Service Prep', category: 'vibe', image: '/images/shop/shop-4.jpg', sortOrder: 8 },
+      { title: 'Beachside Food Stand', category: 'place', image: '/images/shop/shop-5.jpg', sortOrder: 9 },
+      { title: 'Fresh Food & Beverage Counter', category: 'place', image: '/images/shop/shop-6.jpg', sortOrder: 10 },
+      { title: 'Marine Drive Sonar Para Beach Stand', category: 'place', image: '/images/shop/shop-7.jpg', sortOrder: 11 },
+      { title: 'Live Order Serving', category: 'food', image: '/images/shop/shop-8.jpg', sortOrder: 12 },
+      { title: 'Fresh Street Bites & Snacks', category: 'food', image: '/images/shop/shop-9.jpg', sortOrder: 13 },
+      { title: 'Evening Beachside Ambience', category: 'vibe', image: '/images/shop/shop-10.jpg', sortOrder: 14 },
+      { title: 'Fresh Ingredients Display', category: 'food', image: '/images/shop/shop-11.jpg', sortOrder: 15 },
+      { title: 'Golden Crispy Fry Counter', category: 'food', image: '/images/shop/shop-12.jpg', sortOrder: 16 },
+      { title: 'Beachside Walkway View', category: 'place', image: '/images/shop/shop-13.jpg', sortOrder: 17 },
+      { title: 'Golden Sunset at Sonar Para', category: 'place', image: '/images/shop/shop-14.jpg', sortOrder: 18 },
+      { title: 'Night Lights & Street Gathering', category: 'vibe', image: '/images/shop/shop-15.jpg', sortOrder: 19 },
+      { title: 'Ocean Breeze Dining Spot', category: 'place', image: '/images/shop/shop-16.jpg', sortOrder: 20 },
+      { title: 'Brotherhood Community Moments', category: 'vibe', image: '/images/shop/shop-17.jpg', sortOrder: 21 },
+    ];
+
+    await Gallery.create(galleryItems);
+    console.log('Gallery photos created (21 images)');
 
     console.log('\n✅ Seed completed successfully!');
     console.log(`Admin login: admin@brothersbites.com / admin123`);

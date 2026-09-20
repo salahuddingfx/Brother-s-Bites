@@ -10,6 +10,15 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import api from '@/lib/api';
 import { GalleryImage } from '@/types';
 
+const DEFAULT_PREVIEW_IMAGES: GalleryImage[] = [
+  { _id: 'def-prev-1', title: 'Main Chef Ahammad Bin Kashem', category: 'vibe', image: '/images/team/chef-ahammad.jpg', isActive: true, sortOrder: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-prev-2', title: 'Assistant Chef Sahed Mostafa', category: 'vibe', image: '/images/team/assistant-chef-sahed.jpg', isActive: true, sortOrder: 2, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-prev-3', title: 'Live Beach Cooking', category: 'food', image: '/images/team/kitchen-action.jpg', isActive: true, sortOrder: 3, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-prev-4', title: 'Marine Drive Shop Stand', category: 'place', image: '/images/shop/shop-7.jpg', isActive: true, sortOrder: 4, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-prev-5', title: 'Crispy Street Delicacies', category: 'food', image: '/images/shop/shop-1.jpg', isActive: true, sortOrder: 5, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { _id: 'def-prev-6', title: 'The Brotherhood Gathering', category: 'vibe', image: '/images/team/team-brotherhood.jpg', isActive: true, sortOrder: 6, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+
 export default function GalleryPreviewSection() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +27,10 @@ export default function GalleryPreviewSection() {
     const fetchGallery = async () => {
       try {
         const { data } = await api.get('/gallery?limit=6');
-        setImages(data.data || []);
+        const list = data.data || [];
+        setImages(list.length > 0 ? list : DEFAULT_PREVIEW_IMAGES);
       } catch {
-        // fallback
+        setImages(DEFAULT_PREVIEW_IMAGES);
       } finally {
         setLoading(false);
       }
