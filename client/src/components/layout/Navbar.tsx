@@ -74,10 +74,10 @@ export default function Navbar() {
   return (
     <>
       {/* Floating Centered Island Navbar */}
-      <header className="fixed top-2.5 sm:top-5 inset-x-0 z-50 flex justify-center px-2.5 sm:px-4 pointer-events-none">
+      <header className="fixed top-2 sm:top-4 inset-x-0 z-50 flex justify-center px-2.5 sm:px-4 pointer-events-none">
         <nav
           className={cn(
-            'pointer-events-auto flex items-center justify-between gap-1.5 sm:gap-2.5 md:gap-3.5 pl-2.5 pr-2 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 border shadow-2xl backdrop-blur-xl max-w-full',
+            'pointer-events-auto w-[calc(100%-16px)] sm:w-auto max-w-5xl lg:max-w-6xl flex items-center justify-between gap-1.5 sm:gap-2.5 md:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 border shadow-2xl backdrop-blur-xl',
             scrolled
               ? 'bg-brand-surface/95 border-brand-border/90 shadow-black/30'
               : 'bg-brand-surface/90 border-brand-border/70 shadow-black/20'
@@ -86,14 +86,14 @@ export default function Navbar() {
           {/* Logo - Crisp and uncropped */}
           <Link
             href="/"
-            className="flex items-center gap-1.5 group shrink-0 pr-0.5 sm:pr-1"
+            className="flex items-center gap-1.5 group shrink-0 pr-1"
             aria-label="Brother's Bites Home"
           >
-            <div className="h-6 sm:h-8 flex items-center justify-center">
+            <div className="h-6 sm:h-7.5 flex items-center justify-center">
               <img
                 src="/images/logo.png"
                 alt="Brother's Bites"
-                className="h-6 sm:h-8 w-auto max-w-[105px] xs:max-w-[125px] sm:max-w-[140px] object-contain rounded-lg transition-transform duration-200 group-hover:scale-105"
+                className="h-6 sm:h-7.5 w-auto max-w-[110px] sm:max-w-[135px] object-contain rounded-lg transition-transform duration-200 group-hover:scale-105"
               />
             </div>
           </Link>
@@ -107,7 +107,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'text-xs lg:text-sm font-semibold px-3 py-1.5 rounded-full transition-all duration-200 select-none whitespace-nowrap',
+                    'text-xs font-semibold px-2.5 py-1.5 rounded-full transition-all duration-200 select-none whitespace-nowrap',
                     active
                       ? 'bg-brand-yellow text-brand-black font-bold shadow-sm'
                       : 'text-brand-cream/75 hover:text-brand-cream hover:bg-white/5'
@@ -120,10 +120,10 @@ export default function Navbar() {
           </div>
 
           {/* Divider on Desktop */}
-          <div className="hidden md:block w-px h-5 bg-brand-border/80 mx-0.5 shrink-0" />
+          <div className="hidden md:block w-px h-4 bg-brand-border/80 mx-0.5 shrink-0" />
 
           {/* Right Action Utilities */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Customer Account / Sign In */}
             {user ? (
               <div className="relative hidden md:block" ref={userMenuRef}>
@@ -200,9 +200,9 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-brand-cream/80 hover:text-brand-yellow px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors border border-white/10 hover:border-brand-yellow/30"
+                className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-brand-cream/80 hover:text-brand-yellow px-2.5 py-1 rounded-full hover:bg-white/5 transition-colors border border-white/10 hover:border-brand-yellow/30"
               >
-                <UserIcon size={14} />
+                <UserIcon size={13} />
                 <span>Sign In</span>
               </Link>
             )}
@@ -211,22 +211,21 @@ export default function Navbar() {
             <CartNavButton />
 
             {/* Dark/Light Theme Toggle */}
-            <ThemeToggle className="hidden xs:inline-flex" />
+            <ThemeToggle className="w-8 h-8 sm:w-9 sm:h-9" />
 
             {/* Direct ORDER NOW Button */}
             <Link
               href="/menu"
-              className="inline-flex items-center gap-1 sm:gap-1.5 btn-primary !h-7 sm:!h-8.5 !px-2.5 sm:!px-4 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider !rounded-full shadow-md shadow-brand-yellow/15 hover:scale-[1.02] transition-transform whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 btn-primary !h-8 sm:!h-8.5 !px-3 sm:!px-4 text-[11px] sm:text-xs font-extrabold uppercase tracking-wide !rounded-full shadow-md shadow-brand-yellow/15 hover:scale-[1.02] transition-transform whitespace-nowrap"
             >
               <UtensilsCrossed size={12} className="shrink-0" />
-              <span className="hidden sm:inline">ORDER NOW</span>
-              <span className="sm:hidden">ORDER</span>
+              <span>ORDER NOW</span>
             </Link>
 
             {/* Mobile Hamburger Toggle Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-1 sm:p-1.5 text-brand-cream hover:text-brand-yellow transition-colors focus:outline-none rounded-full hover:bg-white/10 shrink-0"
+              className="md:hidden p-1 text-brand-cream hover:text-brand-yellow transition-colors focus:outline-none rounded-full hover:bg-white/10 shrink-0"
               aria-label={isOpen ? 'Close menu' : 'Open menu'}
             >
               {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
