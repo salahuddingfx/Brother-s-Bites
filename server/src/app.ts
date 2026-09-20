@@ -15,6 +15,12 @@ import { printServerBanner } from './utils/banner';
 
 const app = express();
 
+// Trust proxy for reverse proxies (Vercel, Cloudflare, Nginx)
+app.set('trust proxy', 1);
+
+// Initiate DB connection early for serverless runtime
+connectDB().catch((err) => console.error('Initial DB connection error:', err));
+
 const allowedOrigins = [
   config.clientUrl,
   'http://localhost:3000',
@@ -63,6 +69,7 @@ const limiter = rateLimit({
   max: process.env.NODE_ENV === 'production' ? 2500 : 20000,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false, trustProxy: false },
   skip: (req) => {
     // Skip rate limiting in development or for health & analytics pings
     if (process.env.NODE_ENV !== 'production') return true;
@@ -149,19 +156,24 @@ app.get('/api-docs', (_req, res) => {
   });
 });
 
-app.use('/api/v1', routes);
-
-app.use(errorHandler);
-
-// Ensure DB is connected for serverless environments
-app.use(async (_req, _res, next) => {
+// Ensure DB is connected for serverless & production environments before handling API routes
+app.use(async (req, res, next) => {
+  // Skip DB connection for static files and health checks
+  if (req.path === '/api/health' || req.path.startsWith('/public')) {
+    return next();
+  }
   try {
     await connectDB();
     next();
   } catch (err) {
+    console.error('Database connection middleware error:', err);
     next(err);
   }
 });
+
+app.use('/api/v1', routes);
+
+app.use(errorHandler);
 
 const startServer = async (): Promise<void> => {
   await connectDB();
