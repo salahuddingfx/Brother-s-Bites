@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import OfflineDetector from "@/components/common/OfflineDetector";
 import VisitorTracker from "../components/common/VisitorTracker";
+import { MASTER_SEO_KEYWORDS } from "@/lib/seoKeywords";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 
@@ -23,32 +24,7 @@ export const metadata: Metadata = {
   },
   description:
     "Brother's Bites is a premier beachside fast food restaurant at Marine Drive, Sonar Para Beach, Cox's Bazar. Savor signature steamed chicken momos, wave momos, fried momos, crispy yogurt fuchka, golden shrimp fry, and handcrafted caramel tea.",
-  keywords: [
-    "Brother's Bites",
-    "Brothers Bites",
-    "Brother's Bites Cox's Bazar",
-    "Brother's Bites Marine Drive",
-    "fast food restaurant Cox's Bazar",
-    "fast food in Cox's Bazar",
-    "restaurant in Cox's Bazar",
-    "best food in Cox's Bazar",
-    "Chicken Momos",
-    "Steamed Momos",
-    "Fried Momos",
-    "Wave Momos",
-    "Naga Momos",
-    "Yogurt Fuchka",
-    "Dahi Fuchka",
-    "Shrimp Fry",
-    "Thai Spicy Chicken",
-    "Caramel Tea",
-    "Creamy Milk Coffee",
-    "Marine Drive Sonar Para Beach",
-    "Sonar Para food",
-    "Cox's Bazar street food",
-    "beachside restaurant Cox's Bazar",
-    "street bites Cox's Bazar",
-  ],
+  keywords: MASTER_SEO_KEYWORDS,
   authors: [{ name: "Brother's Bites" }],
   creator: "Brother's Bites",
   publisher: "Brother's Bites",
@@ -161,7 +137,9 @@ const jsonLdSchemas = {
         "https://facebook.com/brothersbites.bd",
         "https://instagram.com/brothersbites.bd",
         "https://tiktok.com/@brothersbites.bd"
-      ]
+      ],
+      "knowsAbout": MASTER_SEO_KEYWORDS.slice(0, 50),
+      "keywords": MASTER_SEO_KEYWORDS.join(', ')
     }
   ]
 };
