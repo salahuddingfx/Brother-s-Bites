@@ -1,10 +1,36 @@
 'use client';
 
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, useRef } from 'react';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 import { cn } from '@/lib/utils';
-import { Loader2, Save, Plus, Trash2, GripVertical, KeyRound, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import {
+  Loader2,
+  Save,
+  Plus,
+  Trash2,
+  GripVertical,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Upload,
+  Image as ImageIcon,
+  CheckCircle,
+  X,
+  Sparkles,
+  Link2,
+} from 'lucide-react';
+
+const HERO_IMAGE_PRESETS = [
+  { label: 'Hero Platter (Special)', url: '/images/hero-platter.jpg' },
+  { label: 'Shop Sunset (Outdoor)', url: '/images/shop/shop-1.jpg' },
+  { label: 'Beachside Kitchen View', url: '/images/shop/shop-3.jpg' },
+  { label: 'Dining Counter Area', url: '/images/shop/shop-6.jpg' },
+  { label: 'Steaming Momos Counter', url: '/images/shop/shop-10.jpg' },
+  { label: 'Evening Night Light Vibe', url: '/images/shop/shop-15.jpg' },
+];
 
 function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
   return (
@@ -320,6 +346,71 @@ export default function AdminSettingsPage() {
       });
     } finally {
       setPasswordUpdating(false);
+    }
+  };
+
+  // Hero Image upload & dropzone states
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const [heroUploadProgress, setHeroUploadProgress] = useState(0);
+  const [heroDragActive, setHeroDragActive] = useState(false);
+  const [heroUploadError, setHeroUploadError] = useState<string | null>(null);
+
+  const handleHeroFileUpload = async (file: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setHeroUploadError('Please select a valid image file (PNG, JPG, WEBP, AVIF).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setHeroUploadError('Image size exceeds 10MB limit.');
+      return;
+    }
+
+    setHeroUploading(true);
+    setHeroUploadProgress(0);
+    setHeroUploadError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await api.post('/upload?folder=brothers-bites/hero', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e: any) => {
+          if (e.total) {
+            setHeroUploadProgress(Math.round((e.loaded * 100) / e.total));
+          }
+        },
+      });
+      const url = res.data?.data?.url || res.data?.url || '';
+      if (url) {
+        updateField('hero.image', url);
+      }
+    } catch (err: any) {
+      console.error('Hero upload error:', err);
+      setHeroUploadError(err.response?.data?.message || 'Failed to upload image. Please try again.');
+    } finally {
+      setHeroUploading(false);
+      setHeroUploadProgress(0);
+    }
+  };
+
+  const handleHeroDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setHeroDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setHeroDragActive(false);
+    }
+  };
+
+  const handleHeroDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setHeroDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleHeroFileUpload(e.dataTransfer.files[0]);
     }
   };
 
@@ -689,7 +780,157 @@ export default function AdminSettingsPage() {
                     <div><label className={labelClass}>Secondary CTA Label</label><input type="text" value={form.hero.ctaSecondaryLabel} onChange={(e) => updateField('hero.ctaSecondaryLabel', e.target.value)} className={inputClass} /></div>
                     <div><label className={labelClass}>Secondary CTA Link</label><input type="text" value={form.hero.ctaSecondaryLink} onChange={(e) => updateField('hero.ctaSecondaryLink', e.target.value)} className={inputClass} /></div>
                   </div>
-                  <div><label className={labelClass}>Hero Image URL</label><input type="text" value={form.hero.image} onChange={(e) => updateField('hero.image', e.target.value)} className={inputClass} placeholder="/images/hero-platter.jpg" /></div>
+                  {/* Hero Banner Image Manager (Upload / Drag & Drop / Presets) */}
+                  <div className="pt-2 border-t border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className={labelClass}>Hero Banner Image</label>
+                      <span className="text-xs text-brand-cream/40">Displays on Homepage Main Banner</span>
+                    </div>
+
+                    {/* Current Image Preview Card */}
+                    {form.hero.image ? (
+                      <div className="relative overflow-hidden rounded-xl border border-white/10 bg-brand-surface p-3 flex flex-col sm:flex-row items-center gap-4">
+                        <div className="relative w-full sm:w-44 h-28 rounded-lg overflow-hidden border border-white/10 bg-black/40 shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={form.hero.image}
+                            alt="Hero Banner Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/images/hero-platter.jpg';
+                            }}
+                          />
+                          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] font-medium text-brand-yellow">
+                            Active Hero
+                          </div>
+                        </div>
+
+                        <div className="flex-1 min-w-0 w-full space-y-2">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <p className="text-xs text-brand-cream/80 truncate font-mono">{form.hero.image}</p>
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => heroFileInputRef.current?.click()}
+                              className="px-3 py-1.5 bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5"
+                            >
+                              <Upload size={13} /> Replace Image
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateField('hero.image', '')}
+                              className="px-2.5 py-1.5 bg-white/5 hover:bg-red-500/20 text-brand-cream/60 hover:text-red-400 text-xs rounded-lg transition-colors inline-flex items-center gap-1"
+                            >
+                              <X size={13} /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Drag and Drop Zone */}
+                    <input
+                      ref={heroFileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/jpg,image/avif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleHeroFileUpload(file);
+                      }}
+                    />
+
+                    <div
+                      onDragEnter={handleHeroDrag}
+                      onDragOver={handleHeroDrag}
+                      onDragLeave={handleHeroDrag}
+                      onDrop={handleHeroDrop}
+                      onClick={() => heroFileInputRef.current?.click()}
+                      className={cn(
+                        'relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200',
+                        heroDragActive
+                          ? 'border-brand-yellow bg-brand-yellow/10 scale-[1.01]'
+                          : 'border-white/15 bg-brand-surface/60 hover:border-brand-yellow/50 hover:bg-brand-surface'
+                      )}
+                    >
+                      {heroUploading ? (
+                        <div className="space-y-3 py-2">
+                          <Loader2 className="w-8 h-8 text-brand-yellow animate-spin mx-auto" />
+                          <p className="text-sm font-medium text-brand-cream">Uploading Hero Image... {heroUploadProgress}%</p>
+                          <div className="w-48 max-w-full mx-auto h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-brand-yellow transition-all duration-300"
+                              style={{ width: `${heroUploadProgress}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="w-12 h-12 rounded-full bg-brand-yellow/10 text-brand-yellow flex items-center justify-center mx-auto mb-2 border border-brand-yellow/20">
+                            <Upload className="w-6 h-6" />
+                          </div>
+                          <p className="text-sm font-semibold text-brand-cream">
+                            <span className="text-brand-yellow">Click to upload</span> or drag and drop image here
+                          </p>
+                          <p className="text-xs text-brand-cream/50">
+                            Supports PNG, JPG, WEBP, AVIF (Max 10MB) • Recommended 1920×1080 or landscape
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {heroUploadError && (
+                      <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+                        {heroUploadError}
+                      </p>
+                    )}
+
+                    {/* Preset Selection & Direct URL Option */}
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center gap-1.5 text-xs text-brand-cream/60">
+                        <Sparkles size={13} className="text-brand-yellow" />
+                        <span>Quick Presets from Shop & Platter Photos:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {HERO_IMAGE_PRESETS.map((preset, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => updateField('hero.image', preset.url)}
+                            className={cn(
+                              'text-xs px-2.5 py-1.5 rounded-lg border transition-all inline-flex items-center gap-1.5',
+                              form.hero.image === preset.url
+                                ? 'border-brand-yellow bg-brand-yellow/15 text-brand-yellow font-semibold'
+                                : 'border-white/10 bg-brand-surface hover:border-white/20 text-brand-cream/70 hover:text-brand-cream'
+                            )}
+                          >
+                            <ImageIcon size={12} />
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Direct URL Fallback */}
+                      <div className="pt-2">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <Link2 size={12} className="text-brand-cream/40" />
+                          <label className="text-[11px] text-brand-cream/50 uppercase tracking-wider">
+                            Or paste custom image URL directly:
+                          </label>
+                        </div>
+                        <input
+                          type="text"
+                          value={form.hero.image}
+                          onChange={(e) => updateField('hero.image', e.target.value)}
+                          className={cn(inputClass, 'text-xs font-mono')}
+                          placeholder="https://res.cloudinary.com/... or /images/hero-platter.jpg"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </section>
