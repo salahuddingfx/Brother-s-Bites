@@ -10,6 +10,7 @@ import { config } from './config';
 import { connectDB } from './config/db';
 import routes from './routes';
 import { errorHandler } from './middleware/error.middleware';
+import { renderServerPortalHtml } from './views/serverPortalHtml';
 
 const app = express();
 
@@ -70,10 +71,21 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.get('/', (_req, res) => {
+app.get('/', (req, res) => {
+  const acceptsHtml = req.accepts('html', 'json') === 'html';
+  if (acceptsHtml && req.query.format !== 'json') {
+    const html = renderServerPortalHtml({
+      environment: config.nodeEnv,
+      version: '1.0.0',
+      clientUrl: config.clientUrl || 'http://localhost:3000',
+      uptime: process.uptime(),
+    });
+    return res.type('html').send(html);
+  }
+
   res.json({
     success: true,
-    message: '🍔 Welcome to Brother\'s Bites API',
+    message: "🍔 Welcome to Brother's Bites API",
     name: "Brother's Bites Digital Business Portal",
     version: '1.0.0',
     endpoints: {
@@ -88,6 +100,7 @@ app.get('/', (_req, res) => {
       offers: '/api/v1/offers',
       gallery: '/api/v1/gallery',
       settings: '/api/v1/settings',
+      analytics: '/api/v1/analytics/visitors',
       cart: '/api/v1/cart',
       orders: '/api/v1/orders',
       reviews: '/api/v1/reviews',
