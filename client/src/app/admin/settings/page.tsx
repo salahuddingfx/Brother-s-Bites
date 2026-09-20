@@ -438,8 +438,11 @@ export default function AdminSettingsPage() {
     try {
       const payload = {
         ...form,
-        phones: form.phones.filter((p) => p.trim()),
-        grandOpening: { ...form.grandOpening, isEnabled: form.grandOpening.enabled },
+        phone: form.phones.filter((p) => p.trim()),
+        grandOpening: {
+          ...form.grandOpening,
+          isEnabled: form.grandOpening.enabled,
+        },
       };
       await api.patch('/settings', payload);
       setMessage({ type: 'success', text: 'Settings saved successfully' });
