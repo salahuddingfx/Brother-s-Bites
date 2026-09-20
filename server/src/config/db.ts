@@ -13,7 +13,7 @@ export const connectDB = async (): Promise<void> => {
       bufferCommands: false,
     });
     isConnected = true;
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    console.log('🍃 Database: Connected to MongoDB Atlas Cloud');
   } catch (error) {
     console.error('MongoDB connection error:', error);
     if (!process.env.VERCEL) {
