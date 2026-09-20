@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Utensils, MapPin, Users, Sparkles, Star, Heart, Shield, Zap } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';
+import { CardGridSkeleton } from '@/components/skeletons/SectionSkeletons';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 
@@ -33,6 +34,7 @@ const defaultSection: Settings['whyUs'] = {
 
 export default function WhyUsSection() {
   const [section, setSection] = useState<Settings['whyUs']>(defaultSection);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -42,12 +44,23 @@ export default function WhyUsSection() {
         const settings: Settings = res.data.data || res.data;
         if (mounted && settings.whyUs) setSection(settings.whyUs);
       } catch {}
+      if (mounted) setLoading(false);
     };
     load();
     return () => { mounted = false; };
   }, []);
 
   if (!section.isEnabled) return null;
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-brand-surface border-t border-white/5">
+        <div className="container-bb">
+          <CardGridSkeleton count={4} cols={4} />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-padding bg-brand-surface border-t border-white/5">

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Phone, Clock, Navigation } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';
 import CustomMapEmbed from '@/components/common/CustomMapEmbed';
+import { LocationSectionSkeleton } from '@/components/skeletons/SectionSkeletons';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 
@@ -20,6 +21,7 @@ const defaultSection: Settings['location'] = {
 export default function LocationSection() {
   const [section, setSection] = useState<Settings['location']>(defaultSection);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -31,12 +33,23 @@ export default function LocationSection() {
         setSettings(data);
         if (data.location) setSection(data.location);
       } catch {}
+      if (mounted) setLoading(false);
     };
     load();
     return () => { mounted = false; };
   }, []);
 
   if (!section.isEnabled) return null;
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-brand-surface border-t border-white/5" id="location">
+        <div className="container-bb">
+          <LocationSectionSkeleton />
+        </div>
+      </section>
+    );
+  }
 
   const formatHourRange = (hours: Settings['openingHours']) => {
     if (!hours || hours.length === 0) return [];

@@ -6,6 +6,7 @@ import { Calendar, MapPin, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import AnimatedNumber from '@/components/common/AnimatedNumber';
+import { GrandOpeningSkeleton } from '@/components/skeletons/SectionSkeletons';
 
 interface TimeLeft {
   days: number;
@@ -23,6 +24,7 @@ export default function GrandOpeningSection() {
   );
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
     hours: 0,
@@ -52,6 +54,7 @@ export default function GrandOpeningSection() {
       } catch {
         // use fallback default
       }
+      if (mounted) setLoading(false);
     };
     fetchSettings();
   }, []);
@@ -93,6 +96,16 @@ export default function GrandOpeningSection() {
   }, [targetDate]);
 
   if (!isEnabled) return null;
+
+  if (loading) {
+    return (
+      <section className="bg-brand-surface py-12 sm:py-16 border-y border-white/5">
+        <div className="container-bb">
+          <GrandOpeningSkeleton />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-brand-surface py-12 sm:py-16 border-y border-white/5">

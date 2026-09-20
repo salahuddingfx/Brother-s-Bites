@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import api from '@/lib/api';
 import { Settings } from '@/types';
+import Skeleton from '@/components/ui/skeleton';
 
 const defaultSection: Settings['brotherhood'] = {
   isEnabled: true,
@@ -18,6 +19,7 @@ const defaultSection: Settings['brotherhood'] = {
 
 export default function BrotherhoodSection() {
   const [section, setSection] = useState<Settings['brotherhood']>(defaultSection);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -27,12 +29,29 @@ export default function BrotherhoodSection() {
         const settings: Settings = res.data.data || res.data;
         if (mounted && settings.brotherhood) setSection(settings.brotherhood);
       } catch {}
+      if (mounted) setLoading(false);
     };
     load();
     return () => { mounted = false; };
   }, []);
 
   if (!section.isEnabled) return null;
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-brand-black border-t border-white/5">
+        <div className="container-bb">
+          <div className="max-w-3xl mx-auto text-center py-6 sm:py-10 space-y-4">
+            <Skeleton className="h-3 w-28 rounded-full mx-auto" />
+            <Skeleton className="h-7 w-64 rounded mx-auto" />
+            <Skeleton className="h-4 w-80 rounded mx-auto" />
+            <Skeleton className="h-4 w-64 rounded mx-auto" />
+            <Skeleton className="h-10 w-36 rounded-lg mx-auto mt-4" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-padding bg-brand-black border-t border-white/5">

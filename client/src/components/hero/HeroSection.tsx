@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ArrowRight, Utensils, Star, Sparkles } from 'lucide-react';
 import api from '@/lib/api';
 import { MenuItem, Category, Settings } from '@/types';
+import { HeroSectionSkeleton } from '@/components/skeletons/SectionSkeletons';
 
 const defaultSlides: MenuItem[] = [
   {
@@ -94,6 +95,7 @@ export default function HeroSection() {
   const [hero, setHero] = useState<Settings['hero']>(defaultHeroSettings);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [loading, setLoading] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export default function HeroSection() {
           setSlides(items);
         }
       } catch {}
+      if (isMounted) setLoading(false);
     };
     fetchFeatured();
     return () => { isMounted = false; };
@@ -151,6 +154,10 @@ export default function HeroSection() {
     if (typeof cat === 'object' && cat.name) return cat.name;
     return String(cat);
   };
+
+  if (loading && slides === defaultSlides) {
+    return <HeroSectionSkeleton />;
+  }
 
   return (
     <section

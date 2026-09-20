@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Coffee, CupSoda } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';
+import { DrinksSectionSkeleton } from '@/components/skeletons/SectionSkeletons';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 
@@ -28,6 +29,7 @@ const defaultSection: Settings['drinks'] = {
 
 export default function DrinksSection() {
   const [section, setSection] = useState<Settings['drinks']>(defaultSection);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -37,12 +39,23 @@ export default function DrinksSection() {
         const settings: Settings = res.data.data || res.data;
         if (mounted && settings.drinks) setSection(settings.drinks);
       } catch {}
+      if (mounted) setLoading(false);
     };
     load();
     return () => { mounted = false; };
   }, []);
 
   if (!section.isEnabled) return null;
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-brand-black border-t border-white/5">
+        <div className="container-bb">
+          <DrinksSectionSkeleton />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-padding bg-brand-black border-t border-white/5">

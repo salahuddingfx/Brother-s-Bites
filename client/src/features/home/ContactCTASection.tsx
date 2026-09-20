@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Phone, MessageSquare } from 'lucide-react';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import FacebookIcon from '@/components/icons/FacebookIcon';
+import { ContactCTASkeleton } from '@/components/skeletons/SectionSkeletons';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 
@@ -23,6 +24,7 @@ export default function ContactCTASection() {
     instagram: 'https://instagram.com/brothersbites.bd',
     facebook: 'https://facebook.com/brothersbites.bd',
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -39,12 +41,23 @@ export default function ContactCTASection() {
           facebook: data.socialLinks?.facebook || 'https://facebook.com/brothersbites.bd',
         });
       } catch {}
+      if (mounted) setLoading(false);
     };
     load();
     return () => { mounted = false; };
   }, []);
 
   if (!section.isEnabled) return null;
+
+  if (loading) {
+    return (
+      <section className="bg-brand-yellow py-12 sm:py-16 text-brand-black border-t border-brand-yellow/30">
+        <div className="container-bb">
+          <ContactCTASkeleton />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-brand-yellow py-12 sm:py-16 text-brand-black border-t border-brand-yellow/30">

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import SectionHeader from '@/components/common/SectionHeader';
 import MenuCard from '@/components/menu/MenuCard';
+import MenuCardSkeleton from '@/components/skeletons/MenuCardSkeleton';
 import api from '@/lib/api';
 import { MenuItem, Settings } from '@/types';
 
@@ -20,6 +21,7 @@ const defaultSection: Settings['signatureBites'] = {
 export default function SignatureBitesSection() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [section, setSection] = useState<Settings['signatureBites']>(defaultSection);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -37,6 +39,7 @@ export default function SignatureBitesSection() {
         const settings: Settings = settingsRes.data.data || settingsRes.data;
         if (settings.signatureBites) setSection(settings.signatureBites);
       } catch {}
+      if (mounted) setLoading(false);
     };
     load();
     return () => { mounted = false; };
@@ -53,19 +56,23 @@ export default function SignatureBitesSection() {
           subtitle={section.subtitle}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {items.map((item, index) => (
-            <motion.div
-              key={item._id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <MenuCard item={item} featured={item.isFeatured} />
-            </motion.div>
-          ))}
-        </div>
+        {loading ? (
+          <MenuCardSkeleton count={4} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+            {items.map((item, index) => (
+              <motion.div
+                key={item._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <MenuCard item={item} featured={item.isFeatured} />
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-10 sm:mt-12">
           <Link href={section.ctaLink} className="btn-secondary">
