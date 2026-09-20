@@ -134,7 +134,10 @@ const jsonLdSchemas = {
           "closes": "00:00"
         }
       ],
+      "hasMap": "https://maps.app.goo.gl/Xni3a5YXNXsCe5zz5",
       "sameAs": [
+        "https://maps.app.goo.gl/Xni3a5YXNXsCe5zz5",
+        "https://g.page/r/CZY9cCNvq2_GEAE",
         "https://facebook.com/brothersbites.bd",
         "https://instagram.com/brothersbites.bd",
         "https://tiktok.com/@brothersbites.bd"
