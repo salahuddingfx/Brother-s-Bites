@@ -5,20 +5,26 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
-  Mail,
   Lock,
+  Mail,
   Eye,
   EyeOff,
-  Loader2,
   Sparkles,
   ArrowRight,
+  Loader2,
   ShieldCheck,
   Zap,
   Receipt,
+  HeartHandshake,
+  KeyRound,
+  CheckCircle2,
+  X,
+  ArrowLeft,
   Utensils,
   MapPin,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import api from '@/lib/api';
 
 function LoginForm() {
   const router = useRouter();
@@ -32,6 +38,14 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Forgot Password Modal State
+  const [forgotModalOpen, setForgotModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState('');
+  const [forgotError, setForgotError] = useState('');
+  const [generatedResetUrl, setGeneratedResetUrl] = useState('');
+
   // If already logged in, redirect automatically
   useEffect(() => {
     if (!authLoading && user) {
@@ -39,12 +53,38 @@ function LoginForm() {
     }
   }, [user, authLoading, router, redirect]);
 
+  const handleForgotPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+    setForgotSuccess('');
+    setGeneratedResetUrl('');
+    setForgotLoading(true);
+
+    try {
+      const res = await api.post('/auth/forgot-password', {
+        email: forgotEmail.trim(),
+      });
+      setForgotSuccess(
+        res.data?.message || 'Password reset instructions have been generated.'
+      );
+      if (res.data?.data?.resetUrl) {
+        setGeneratedResetUrl(res.data.data.resetUrl);
+      }
+    } catch (err: any) {
+      setForgotError(
+        err.response?.data?.message || 'Failed to process forgot password request.'
+      );
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (!identifier.trim()) {
-      setError('Please enter your email or phone number');
+      setError('Please enter your email or username');
       return;
     }
     if (!password) {
@@ -166,7 +206,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-brand-cream/70 mb-2">
-              Email or Phone Number
+              Email or Username
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-brand-cream/40 pointer-events-none" />
@@ -174,7 +214,7 @@ function LoginForm() {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="e.g. name@example.com or 01812345678"
+                placeholder="e.g. username or name@example.com"
                 required
                 className="w-full bg-black/40 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-brand-cream placeholder-brand-cream/30 focus:outline-none focus:border-brand-yellow/50 focus:ring-1 focus:ring-brand-yellow/50 transition-colors"
               />
@@ -186,6 +226,18 @@ function LoginForm() {
               <label className="text-xs font-bold uppercase tracking-wider text-brand-cream/70">
                 Password
               </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotModalOpen(true);
+                  setForgotError('');
+                  setForgotSuccess('');
+                  setGeneratedResetUrl('');
+                }}
+                className="text-xs text-brand-yellow hover:underline font-semibold transition-colors"
+              >
+                Forgot password?
+              </button>
             </div>
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-brand-cream/40 pointer-events-none" />
@@ -225,6 +277,108 @@ function LoginForm() {
             )}
           </button>
         </form>
+
+        {/* Forgot Password Modal */}
+        {forgotModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-brand-surface border border-white/15 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute -top-16 -right-16 w-32 h-32 bg-brand-yellow/15 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-brand-yellow/15 border border-brand-yellow/30 flex items-center justify-center text-brand-yellow">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-brand-cream">Reset Password</h3>
+                    <p className="text-[11px] text-brand-cream/50">Password recovery instructions</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForgotModalOpen(false)}
+                  className="p-1.5 rounded-lg text-brand-cream/50 hover:text-brand-cream hover:bg-white/5 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {forgotError && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-xs flex items-center gap-2">
+                  <span>{forgotError}</span>
+                </div>
+              )}
+
+              {forgotSuccess && (
+                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl text-xs space-y-2">
+                  <div className="flex items-center gap-2 font-medium">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>{forgotSuccess}</span>
+                  </div>
+                  {generatedResetUrl && (
+                    <div className="pt-2 border-t border-emerald-500/20">
+                      <p className="text-[11px] text-brand-cream/70 mb-1 font-semibold">Development Reset Link:</p>
+                      <a
+                        href={generatedResetUrl}
+                        className="text-brand-yellow underline break-all font-mono text-[11px] block hover:text-white"
+                      >
+                        Click here to reset password &rarr;
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <label className="block text-brand-cream/70 text-xs font-semibold uppercase tracking-wider mb-2">
+                    Registered Email Address *
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-cream/40 pointer-events-none" />
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      required
+                      placeholder="you@email.com"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-brand-cream placeholder-brand-cream/30 focus:outline-none focus:border-brand-yellow transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotModalOpen(false)}
+                    className="flex-1 py-2.5 px-4 rounded-xl border border-white/10 text-xs font-bold text-brand-cream/70 hover:bg-white/5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="flex-1 btn-primary justify-center !h-10 text-xs font-bold uppercase tracking-wider shadow-md shadow-brand-yellow/15"
+                  >
+                    {forgotLoading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      'Send Link'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
 
         {/* Footer Navigation */}
         <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-4">

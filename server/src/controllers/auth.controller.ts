@@ -300,9 +300,11 @@ export const forgotPassword = async (req: AuthRequest, res: Response): Promise<v
     await user.save();
 
     // Log the reset link for development / server logs
-    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/admin/reset-password?token=${resetToken}`;
+    const isAdminOrStaff = ['super_admin', 'admin', 'manager', 'staff'].includes(user.role);
+    const resetPath = isAdminOrStaff ? '/admin/reset-password' : '/reset-password';
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}${resetPath}?token=${resetToken}`;
     console.log(`\n========================================`);
-    console.log(`[PASSWORD RESET REQUEST] for ${user.email}`);
+    console.log(`[PASSWORD RESET REQUEST] for ${user.email} (${user.role})`);
     console.log(`Reset URL: ${resetUrl}`);
     console.log(`Token: ${resetToken}`);
     console.log(`========================================\n`);
@@ -311,6 +313,7 @@ export const forgotPassword = async (req: AuthRequest, res: Response): Promise<v
       res,
       {
         resetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined,
+        resetToken: process.env.NODE_ENV !== 'production' ? resetToken : undefined,
       },
       200,
       'Password reset instructions generated successfully. Token valid for 15 minutes.'

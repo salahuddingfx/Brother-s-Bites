@@ -16,22 +16,32 @@ import {
   Loader2,
   Sparkles,
   CheckCircle2,
+  KeyRound,
+  ArrowLeft,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import api from '@/lib/api';
 
 export default function AuthModal() {
   const { isAuthModalOpen, authModalTab, openAuthModal, closeAuthModal, login, register } = useAuth();
   const activeTab = authModalTab;
-  const setActiveTab = (tab: 'login' | 'register') => {
+  const setActiveTab = (tab: 'login' | 'register' | 'forgot') => {
     openAuthModal(tab);
     setError('');
+    setSuccessMsg('');
+    setGeneratedResetUrl('');
   };
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Forgot password form
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [generatedResetUrl, setGeneratedResetUrl] = useState('');
 
   // Login form
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -49,6 +59,32 @@ export default function AuthModal() {
   });
 
   if (!isAuthModalOpen) return null;
+
+  const handleForgotSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+    setGeneratedResetUrl('');
+    setLoading(true);
+
+    try {
+      const res = await api.post('/auth/forgot-password', {
+        email: forgotEmail.trim(),
+      });
+      setSuccessMsg(
+        res.data?.message || 'Password reset instructions have been generated.'
+      );
+      if (res.data?.data?.resetUrl) {
+        setGeneratedResetUrl(res.data.data.resetUrl);
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || 'Failed to process forgot password request.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -143,50 +179,71 @@ export default function AuthModal() {
               <span>Brother&apos;s Bites Club</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-brand-cream tracking-tight">
-              {activeTab === 'login' ? 'Welcome Back, Friend!' : 'Join Brother\'s Bites'}
+              {activeTab === 'login'
+                ? 'Welcome Back, Friend!'
+                : activeTab === 'register'
+                ? "Join Brother's Bites"
+                : 'Reset Your Password'}
             </h2>
             <p className="text-xs text-brand-cream/50 mt-1">
               {activeTab === 'login'
                 ? 'Sign in to access saved addresses & 1-click checkout'
-                : 'Create an account to save your delivery info & track past orders'}
+                : activeTab === 'register'
+                ? 'Create an account to save your delivery info & track past orders'
+                : 'Enter your email to receive password reset instructions'}
             </p>
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('login');
-                openAuthModal('login');
-                setError('');
-              }}
-              className={cn(
-                'flex-1 py-2 text-xs font-bold rounded-lg transition-all',
-                activeTab === 'login'
-                  ? 'bg-brand-yellow text-brand-black shadow-sm font-extrabold'
-                  : 'text-brand-cream/60 hover:text-brand-cream'
-              )}
-            >
-              SIGN IN
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('register');
-                openAuthModal('register');
-                setError('');
-              }}
-              className={cn(
-                'flex-1 py-2 text-xs font-bold rounded-lg transition-all',
-                activeTab === 'register'
-                  ? 'bg-brand-yellow text-brand-black shadow-sm font-extrabold'
-                  : 'text-brand-cream/60 hover:text-brand-cream'
-              )}
-            >
-              CREATE ACCOUNT
-            </button>
-          </div>
+          {activeTab === 'forgot' ? (
+            <div className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/5 mb-6">
+              <button
+                type="button"
+                onClick={() => setActiveTab('login')}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-cream/70 hover:text-brand-yellow transition-colors"
+              >
+                <ArrowLeft size={14} />
+                <span>Back to Sign In</span>
+              </button>
+              <div className="flex items-center gap-1 text-[11px] text-brand-yellow font-bold uppercase tracking-wider">
+                <KeyRound size={12} />
+                <span>Recovery</span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('login');
+                  setError('');
+                }}
+                className={cn(
+                  'flex-1 py-2 text-xs font-bold rounded-lg transition-all',
+                  activeTab === 'login'
+                    ? 'bg-brand-yellow text-brand-black shadow-sm font-extrabold'
+                    : 'text-brand-cream/60 hover:text-brand-cream'
+                )}
+              >
+                SIGN IN
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('register');
+                  setError('');
+                }}
+                className={cn(
+                  'flex-1 py-2 text-xs font-bold rounded-lg transition-all',
+                  activeTab === 'register'
+                    ? 'bg-brand-yellow text-brand-black shadow-sm font-extrabold'
+                    : 'text-brand-cream/60 hover:text-brand-cream'
+                )}
+              >
+                CREATE ACCOUNT
+              </button>
+            </div>
+          )}
 
           {/* Feedback Messages */}
           {error && (
@@ -203,7 +260,66 @@ export default function AuthModal() {
           )}
 
           {/* Forms */}
-          {activeTab === 'login' ? (
+          {activeTab === 'forgot' ? (
+            <form onSubmit={handleForgotSubmit} className="space-y-4">
+              <div>
+                <label className={labelClass}>Registered Email Address *</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-cream/40 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className={cn(inputClass, 'pl-10')}
+                    placeholder="name@email.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              {generatedResetUrl && (
+                <div className="p-3 bg-brand-yellow/10 border border-brand-yellow/30 rounded-xl text-xs space-y-2">
+                  <div className="flex items-center gap-1.5 text-brand-yellow font-bold">
+                    <Sparkles size={14} />
+                    <span>Reset Link Ready</span>
+                  </div>
+                  <a
+                    href={generatedResetUrl}
+                    onClick={() => closeAuthModal()}
+                    className="text-brand-yellow underline break-all font-mono text-[11px] block hover:text-white"
+                  >
+                    Click here to reset password &rarr;
+                  </a>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full justify-center !h-11 font-bold text-xs uppercase tracking-wider mt-2 gap-2 shadow-lg shadow-brand-yellow/15"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Generating Link...
+                  </>
+                ) : (
+                  'SEND RESET INSTRUCTIONS'
+                )}
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('login')}
+                  className="inline-flex items-center gap-1.5 text-xs text-brand-cream/60 hover:text-brand-yellow transition-colors font-semibold"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Sign In</span>
+                </button>
+              </div>
+            </form>
+          ) : activeTab === 'login' ? (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
                 <label className={labelClass}>Email or Username *</label>
@@ -221,7 +337,18 @@ export default function AuthModal() {
               </div>
 
               <div>
-                <label className={labelClass}>Password *</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-brand-cream/70 text-xs font-semibold uppercase tracking-wider">
+                    Password *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('forgot')}
+                    className="text-xs text-brand-yellow hover:underline font-semibold transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-cream/40 pointer-events-none" />
                   <input

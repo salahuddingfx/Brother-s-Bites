@@ -16,8 +16,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthModalOpen: boolean;
-  authModalTab: 'login' | 'register';
-  openAuthModal: (tab?: 'login' | 'register') => void;
+  authModalTab: 'login' | 'register' | 'forgot';
+  openAuthModal: (tab?: 'login' | 'register' | 'forgot') => void;
   closeAuthModal: () => void;
   login: (identifier: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
@@ -32,9 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'register' | 'forgot'>('login');
 
-  const openAuthModal = useCallback((tab: 'login' | 'register' = 'login') => {
+  const openAuthModal = useCallback((tab: 'login' | 'register' | 'forgot' = 'login') => {
     setAuthModalTab(tab);
     setIsAuthModalOpen(true);
   }, []);
