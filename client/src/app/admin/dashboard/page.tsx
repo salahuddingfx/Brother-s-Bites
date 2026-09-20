@@ -222,6 +222,10 @@ export default function AdminDashboardPage() {
     },
   ];
 
+  const totalDeviceCount = (visitorStats?.deviceBreakdown || []).reduce((acc, curr) => acc + curr.count, 0) || 1;
+  const mobileCount = visitorStats?.deviceBreakdown?.find((d) => d.device.toLowerCase() === 'mobile')?.count || 0;
+  const mobilePercent = Math.round((mobileCount / totalDeviceCount) * 100);
+
   if (loading) {
     return <AdminDashboardSkeleton />;
   }
@@ -394,13 +398,13 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Period Filter Buttons */}
-          <div className="flex items-center gap-1.5 flex-wrap bg-brand-black/60 p-1 rounded-xl border border-white/10">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap bg-brand-black/60 p-1 rounded-xl border border-white/10 shrink-0">
             {PERIODS.map((p) => (
               <button
                 key={p.id}
                 onClick={() => handlePeriodChange(p.id)}
                 className={cn(
-                  'px-3 py-1 rounded-lg text-xs font-bold transition-all',
+                  'px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all',
                   visitorPeriod === p.id
                     ? 'bg-brand-yellow text-black shadow-md'
                     : 'text-brand-cream/60 hover:text-brand-cream hover:bg-white/5'
@@ -457,84 +461,75 @@ export default function AdminDashboardPage() {
 
               <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Mobile Users</span>
+                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Top Device</span>
                   <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400">
                     <Smartphone size={15} />
                   </div>
                 </div>
-                <p className="text-2xl font-black text-emerald-400">
-                  {visitorStats?.totalPageviews
-                    ? Math.round(((visitorStats.deviceBreakdown.find(d => d.device === 'mobile')?.count || 0) / visitorStats.totalPageviews) * 100)
-                    : 0}%
+                <p className="text-xl sm:text-2xl font-black text-brand-cream capitalize truncate">
+                  {visitorStats?.deviceBreakdown?.[0]?.device || 'Mobile'}
                 </p>
-                <p className="text-[11px] text-brand-cream/40 mt-1">Mobile device traffic</p>
+                <p className="text-[11px] text-brand-cream/40 mt-1">{mobilePercent}% Mobile Traffic</p>
               </div>
 
               <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Desktop Users</span>
+                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Top Browser</span>
                   <div className="p-1.5 rounded-lg bg-purple-500/15 text-purple-400">
-                    <Laptop size={15} />
+                    <Compass size={15} />
                   </div>
                 </div>
-                <p className="text-2xl font-black text-purple-400">
-                  {visitorStats?.totalPageviews
-                    ? Math.round(((visitorStats.deviceBreakdown.find(d => d.device === 'desktop')?.count || 0) / visitorStats.totalPageviews) * 100)
-                    : 0}%
+                <p className="text-xl sm:text-2xl font-black text-brand-cream capitalize truncate">
+                  {visitorStats?.browserBreakdown?.[0]?.browser || 'Chrome'}
                 </p>
-                <p className="text-[11px] text-brand-cream/40 mt-1">Desktop & laptop traffic</p>
+                <p className="text-[11px] text-brand-cream/40 mt-1">{visitorStats?.browserBreakdown?.[0]?.count || 0} Sessions</p>
               </div>
             </div>
 
-            {/* Breakdown row: Top Pages & Browsers */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="card-bb p-4 bg-brand-black/30 border-brand-border/40">
-                <h3 className="text-xs font-bold text-brand-cream uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <Compass size={14} className="text-brand-yellow" />
-                  <span>Top Visited Pages</span>
+            {/* Popular Pages & Device distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-cream/70 mb-3 flex items-center gap-1.5">
+                  <Globe size={14} className="text-brand-yellow" />
+                  <span>Most Visited Customer Pages</span>
                 </h3>
-                {(!visitorStats?.topPages || visitorStats.topPages.length === 0) ? (
-                  <p className="text-brand-cream/40 text-xs py-4 text-center">No visitor hits in this period.</p>
+                {!visitorStats?.topPages?.length ? (
+                  <p className="text-xs text-brand-cream/40 py-4 text-center">No pageview data recorded for this period.</p>
                 ) : (
-                  <div className="space-y-2.5">
-                    {visitorStats.topPages.map((page) => {
-                      const pct = visitorStats.totalPageviews > 0
-                        ? Math.round((page.count / visitorStats.totalPageviews) * 100)
-                        : 0;
-                      return (
-                        <div key={page.path} className="text-xs">
-                          <div className="flex justify-between items-center mb-1 text-brand-cream/80 font-medium">
-                            <span className="font-mono text-brand-yellow truncate max-w-[200px]">{page.path}</span>
-                            <span className="text-[11px] text-brand-cream/50">{page.count} hits ({pct}%)</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-brand-yellow rounded-full transition-all duration-500"
-                              style={{ width: `${Math.max(pct, 4)}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="space-y-2">
+                    {visitorStats.topPages.slice(0, 5).map((page) => (
+                      <div key={page.path} className="flex items-center justify-between p-2 rounded-lg bg-brand-surface border border-white/5 text-xs">
+                        <span className="font-mono text-brand-cream truncate max-w-[200px]">{page.path}</span>
+                        <span className="font-bold text-brand-yellow shrink-0">{page.count} views</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
 
-              <div className="card-bb p-4 bg-brand-black/30 border-brand-border/40">
-                <h3 className="text-xs font-bold text-brand-cream uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <Globe size={14} className="text-brand-yellow" />
-                  <span>Browsers & Technology</span>
+              <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-cream/70 mb-3 flex items-center gap-1.5">
+                  <Smartphone size={14} className="text-emerald-400" />
+                  <span>Device & Platform Share</span>
                 </h3>
-                {(!visitorStats?.browserBreakdown || visitorStats.browserBreakdown.length === 0) ? (
-                  <p className="text-brand-cream/40 text-xs py-4 text-center">No browser data in this period.</p>
+                {!visitorStats?.deviceBreakdown?.length ? (
+                  <p className="text-xs text-brand-cream/40 py-4 text-center">No device data for this period.</p>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {visitorStats.browserBreakdown.map((b) => (
-                      <div key={b.browser} className="p-2.5 rounded-lg bg-brand-surface border border-white/5 flex items-center justify-between">
-                        <span className="text-xs font-medium text-brand-cream">{b.browser}</span>
-                        <span className="text-xs font-bold text-brand-yellow">{b.count}</span>
-                      </div>
-                    ))}
+                  <div className="space-y-2.5">
+                    {visitorStats.deviceBreakdown.map((dev) => {
+                      const percent = totalDeviceCount > 0 ? Math.round((dev.count / totalDeviceCount) * 100) : 0;
+                      return (
+                        <div key={dev.device} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="capitalize text-brand-cream font-medium">{dev.device}</span>
+                            <span className="text-brand-yellow font-bold">{dev.count} ({percent}%)</span>
+                          </div>
+                          <div className="w-full bg-brand-surface rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-brand-yellow h-full rounded-full transition-all" style={{ width: `${percent}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -563,96 +558,162 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="card-bb overflow-hidden border border-brand-border shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-brand-border bg-brand-surface/60 text-brand-cream/50 uppercase font-bold text-[11px]">
-                  <th className="text-left px-4 py-3">Order ID</th>
-                  <th className="text-left px-4 py-3">Customer</th>
-                  <th className="text-left px-4 py-3">Items & Total</th>
-                  <th className="text-left px-4 py-3">Status</th>
-                  <th className="text-right px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-border">
-                {recentOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center text-brand-cream/40 py-8">
-                      No incoming customer orders yet.
-                    </td>
-                  </tr>
-                ) : (
-                  recentOrders.map((ord) => {
-                    const st = statusConfig[ord.status] || {
-                      label: ord.status,
-                      color: 'text-brand-cream',
-                      bg: 'bg-brand-surface',
-                    };
-                    const next = nextStatusMap[ord.status];
+          {recentOrders.length === 0 ? (
+            <div className="text-center text-brand-cream/40 py-10">
+              <p>No incoming customer orders yet.</p>
+            </div>
+          ) : (
+            <>
+              {/* 📱 Mobile Recent Orders Cards */}
+              <div className="sm:hidden divide-y divide-white/5">
+                {recentOrders.map((ord) => {
+                  const st = statusConfig[ord.status] || {
+                    label: ord.status,
+                    color: 'text-brand-cream',
+                    bg: 'bg-brand-surface',
+                  };
+                  const next = nextStatusMap[ord.status];
 
-                    return (
-                      <tr key={ord._id} className="hover:bg-brand-surface/40 transition-colors">
-                        <td className="px-4 py-3 font-mono font-bold text-brand-yellow">
+                  return (
+                    <div key={ord._id} className="p-3.5 space-y-2.5 hover:bg-white/[0.02] transition-colors">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono font-bold text-brand-yellow text-xs">
                           #{ord.orderNumber}
-                        </td>
-                        <td className="px-4 py-3">
+                        </span>
+                        <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border', st.bg, st.color)}>
+                          {st.label}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs">
+                        <div>
                           <p className="font-bold text-brand-cream">{ord.customer.name}</p>
-                          <p className="text-brand-cream/50 flex items-center gap-1 mt-0.5 text-[11px]">
-                            <Phone size={10} />
-                            <span>{ord.customer.phone}</span>
-                          </p>
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="font-bold text-brand-cream">৳{ord.totalAmount}</p>
-                          <p className="text-brand-cream/50 text-[11px]">{ord.totalItems} items</p>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={cn(
-                              'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
-                              st.bg,
-                              st.color
-                            )}
+                          <p className="text-brand-cream/50 text-[11px]">{ord.customer.phone}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-brand-yellow">৳{ord.totalAmount}</p>
+                          <p className="text-brand-cream/50 text-[10px]">{ord.totalItems} items</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between gap-2 border-t border-white/5">
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setSelectedInvoiceOrder(ord as unknown as InvoiceOrderData)}
+                            className="p-1.5 text-brand-yellow/80 hover:text-brand-yellow hover:bg-brand-yellow/10 rounded-lg transition-colors"
+                            title="Print Invoice / Receipt"
                           >
-                            {st.label}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            {next && (
+                            <Receipt size={14} />
+                          </button>
+                          <Link
+                            href={`/admin/orders/${ord._id}`}
+                            className="p-1.5 text-brand-cream/50 hover:text-brand-cream hover:bg-white/5 rounded-lg transition-colors"
+                            title="View Order Details"
+                          >
+                            <Eye size={14} />
+                          </Link>
+                        </div>
+
+                        {next && (
+                          <button
+                            onClick={() => handleUpdateStatus(ord._id, next)}
+                            disabled={updatingOrderId === ord._id}
+                            className="text-[11px] bg-brand-yellow text-brand-black font-extrabold px-2.5 py-1 rounded-lg hover:bg-brand-yellow-hover transition-colors shadow-sm disabled:opacity-50"
+                          >
+                            {updatingOrderId === ord._id ? '...' : `Mark ${statusConfig[next]?.label}`}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 💻 Desktop Table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-brand-border bg-brand-surface/60 text-brand-cream/50 uppercase font-bold text-[11px]">
+                      <th className="text-left px-4 py-3">Order ID</th>
+                      <th className="text-left px-4 py-3">Customer</th>
+                      <th className="text-left px-4 py-3">Items & Total</th>
+                      <th className="text-left px-4 py-3">Status</th>
+                      <th className="text-right px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-brand-border">
+                    {recentOrders.map((ord) => {
+                      const st = statusConfig[ord.status] || {
+                        label: ord.status,
+                        color: 'text-brand-cream',
+                        bg: 'bg-brand-surface',
+                      };
+                      const next = nextStatusMap[ord.status];
+
+                      return (
+                        <tr key={ord._id} className="hover:bg-brand-surface/40 transition-colors">
+                          <td className="px-4 py-3 font-mono font-bold text-brand-yellow">
+                            #{ord.orderNumber}
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="font-bold text-brand-cream">{ord.customer.name}</p>
+                            <p className="text-brand-cream/50 flex items-center gap-1 mt-0.5 text-[11px]">
+                              <Phone size={10} />
+                              <span>{ord.customer.phone}</span>
+                            </p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="font-bold text-brand-cream">৳{ord.totalAmount}</p>
+                            <p className="text-brand-cream/50 text-[11px]">{ord.totalItems} items</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={cn(
+                                'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
+                                st.bg,
+                                st.color
+                              )}
+                            >
+                              {st.label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {next && (
+                                <button
+                                  onClick={() => handleUpdateStatus(ord._id, next)}
+                                  disabled={updatingOrderId === ord._id}
+                                  className="text-[11px] bg-brand-yellow text-brand-black font-extrabold px-2.5 py-1 rounded-lg hover:bg-brand-yellow-hover transition-colors shadow-sm disabled:opacity-50"
+                                >
+                                  {updatingOrderId === ord._id ? '...' : `Mark ${statusConfig[next]?.label}`}
+                                </button>
+                              )}
+
                               <button
-                                onClick={() => handleUpdateStatus(ord._id, next)}
-                                disabled={updatingOrderId === ord._id}
-                                className="text-[11px] bg-brand-yellow text-brand-black font-extrabold px-2.5 py-1 rounded-lg hover:bg-brand-yellow-hover transition-colors shadow-sm disabled:opacity-50"
+                                onClick={() => setSelectedInvoiceOrder(ord as unknown as InvoiceOrderData)}
+                                className="p-1.5 text-brand-yellow/80 hover:text-brand-yellow hover:bg-brand-yellow/10 rounded-lg transition-colors"
+                                title="Print Invoice / Receipt"
                               >
-                                {updatingOrderId === ord._id ? '...' : `Mark ${statusConfig[next]?.label}`}
+                                <Receipt size={15} />
                               </button>
-                            )}
 
-                            <button
-                              onClick={() => setSelectedInvoiceOrder(ord as unknown as InvoiceOrderData)}
-                              className="p-1.5 text-brand-yellow/80 hover:text-brand-yellow hover:bg-brand-yellow/10 rounded-lg transition-colors"
-                              title="Print Invoice / Receipt"
-                            >
-                              <Receipt size={15} />
-                            </button>
-
-                            <Link
-                              href={`/admin/orders/${ord._id}`}
-                              className="p-1.5 text-brand-cream/50 hover:text-brand-cream hover:bg-white/5 rounded-lg transition-colors"
-                              title="View Order Details"
-                            >
-                              <Eye size={15} />
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                              <Link
+                                href={`/admin/orders/${ord._id}`}
+                                className="p-1.5 text-brand-cream/50 hover:text-brand-cream hover:bg-white/5 rounded-lg transition-colors"
+                                title="View Order Details"
+                              >
+                                <Eye size={15} />
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

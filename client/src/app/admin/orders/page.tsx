@@ -5,7 +5,7 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { Order } from '@/types';
 import { cn } from '@/lib/utils';
-import { Eye, ChevronLeft, ChevronRight, Receipt, Radio, BellRing } from 'lucide-react';
+import { Eye, ChevronLeft, ChevronRight, Receipt, Radio, BellRing, ShoppingBag } from 'lucide-react';
 import AdminTableSkeleton from '@/components/skeletons/AdminTableSkeleton';
 import dynamic from 'next/dynamic';
 import type { InvoiceOrderData } from '@/components/orders/InvoiceModal';
@@ -164,15 +164,15 @@ export default function AdminOrdersPage() {
       )}
 
       {/* Status Filter */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap">
         {statusFilters.map((status) => (
           <button
             key={status}
             onClick={() => { setStatusFilter(status); setPage(1); }}
             className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize',
+              'px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all capitalize shrink-0 shadow-sm',
               statusFilter === status
-                ? 'bg-brand-yellow text-brand-black'
+                ? 'bg-brand-yellow text-brand-black shadow-md'
                 : 'bg-brand-surface text-brand-cream/60 hover:text-brand-cream border border-white/10'
             )}
           >
@@ -181,92 +181,166 @@ export default function AdminOrdersPage() {
         ))}
       </div>
 
-      {/* Orders Table */}
-      <div className="bg-brand-surface-light rounded-xl border border-white/10 overflow-hidden">
+      {/* Orders List / Table */}
+      <div className="bg-brand-surface-light rounded-2xl border border-white/10 overflow-hidden shadow-xl">
         {orders.length === 0 ? (
-          <div className="text-center py-16 text-brand-cream/40">
-            <p>No orders found</p>
+          <div className="text-center py-16 text-brand-cream/40 space-y-2">
+            <ShoppingBag size={40} className="mx-auto opacity-30 text-brand-yellow" />
+            <p className="text-sm font-semibold">No orders found for this filter</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3">Order</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3 hidden sm:table-cell">Customer</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3">Items</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3">Total</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3 hidden md:table-cell">Type</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3">Status</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3 hidden lg:table-cell">Date</th>
-                  <th className="text-right text-brand-cream/50 text-sm font-medium px-5 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => {
-                  const st = statusConfig[order.status] || statusConfig.pending;
-                  const next = nextStatus[order.status];
-                  return (
-                    <tr key={order._id} className="border-b border-white/5 last:border-0 hover:bg-brand-surface-hover transition-colors">
-                      <td className="px-5 py-3">
-                        <span className="text-brand-yellow font-mono text-sm font-bold">#{order.orderNumber}</span>
-                      </td>
-                      <td className="px-5 py-3 hidden sm:table-cell">
-                        <p className="text-brand-cream text-sm">{order.customer.name}</p>
-                        <p className="text-brand-cream/40 text-xs">{order.customer.phone}</p>
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className="text-brand-cream text-sm">{order.totalItems} items</span>
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className="text-brand-cream font-medium text-sm">৳{order.totalAmount}</span>
-                      </td>
-                      <td className="px-5 py-3 hidden md:table-cell">
-                        <span className={cn('text-xs font-medium capitalize', order.orderType === 'delivery' ? 'text-cyan-400' : 'text-purple-400')}>
+          <>
+            {/* 📱 Mobile Orders Card View (Visible only on < sm screens) */}
+            <div className="sm:hidden divide-y divide-white/5">
+              {orders.map((order) => {
+                const st = statusConfig[order.status] || statusConfig.pending;
+                const next = nextStatus[order.status];
+                return (
+                  <div key={order._id} className="p-4 space-y-3 hover:bg-white/[0.02] transition-colors">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-brand-yellow font-mono text-sm font-bold">
+                          #{order.orderNumber}
+                        </span>
+                        <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider', order.orderType === 'delivery' ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' : 'bg-purple-500/15 text-purple-400 border border-purple-500/30')}>
                           {order.orderType}
                         </span>
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', st.bg, st.color)}>
-                          {st.label}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 hidden lg:table-cell">
-                        <span className="text-brand-cream/50 text-xs">{formatDate(order.createdAt)}</span>
-                      </td>
-                      <td className="px-5 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {next && (
+                      </div>
+                      <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold', st.bg, st.color)}>
+                        {st.label}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <div>
+                        <p className="text-brand-cream font-bold">{order.customer.name}</p>
+                        {order.customer.phone && (
+                          <a href={`tel:${order.customer.phone}`} className="text-brand-cream/60 hover:text-brand-yellow font-mono text-[11px] underline">
+                            {order.customer.phone}
+                          </a>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-brand-yellow">৳{order.totalAmount}</p>
+                        <p className="text-[11px] text-brand-cream/50">{order.totalItems} items • {formatDate(order.createdAt)}</p>
+                      </div>
+                    </div>
+
+                    {/* Quick Mobile Action Bar */}
+                    <div className="pt-2 flex items-center justify-between gap-2 border-t border-white/5">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setSelectedInvoiceOrder(order as unknown as InvoiceOrderData)}
+                          className="px-2.5 py-1.5 rounded-lg bg-brand-surface border border-brand-border text-brand-cream/80 hover:text-brand-yellow text-xs font-semibold flex items-center gap-1"
+                        >
+                          <Receipt size={13} className="text-brand-yellow" />
+                          <span>Receipt</span>
+                        </button>
+                        <Link
+                          href={`/admin/orders/${order._id}`}
+                          className="px-2.5 py-1.5 rounded-lg bg-brand-surface border border-brand-border text-brand-cream/80 hover:text-brand-cream text-xs font-semibold flex items-center gap-1"
+                        >
+                          <Eye size={13} />
+                          <span>Details</span>
+                        </Link>
+                      </div>
+
+                      {next && (
+                        <button
+                          onClick={() => updateStatus(order._id, next)}
+                          disabled={updatingId === order._id}
+                          className="px-3 py-1.5 rounded-xl bg-brand-yellow text-brand-black text-xs font-black shadow-md active:scale-95 transition-all disabled:opacity-50"
+                        >
+                          {updatingId === order._id ? 'Updating...' : `Mark ${statusConfig[next]?.label}`}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 💻 Desktop / Tablet Table View (Visible only on >= sm screens) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Order</th>
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Customer</th>
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Items</th>
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Total</th>
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5 hidden md:table-cell">Type</th>
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Status</th>
+                    <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5 hidden lg:table-cell">Date</th>
+                    <th className="text-right text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => {
+                    const st = statusConfig[order.status] || statusConfig.pending;
+                    const next = nextStatus[order.status];
+                    return (
+                      <tr key={order._id} className="border-b border-white/5 last:border-0 hover:bg-brand-surface-hover transition-colors">
+                        <td className="px-5 py-3.5">
+                          <span className="text-brand-yellow font-mono text-sm font-bold">#{order.orderNumber}</span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <p className="text-brand-cream text-sm font-semibold">{order.customer.name}</p>
+                          <p className="text-brand-cream/40 text-xs font-mono">{order.customer.phone}</p>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-brand-cream text-sm">{order.totalItems} items</span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-brand-cream font-bold text-sm">৳{order.totalAmount}</span>
+                        </td>
+                        <td className="px-5 py-3.5 hidden md:table-cell">
+                          <span className={cn('text-xs font-semibold capitalize px-2 py-0.5 rounded-full', order.orderType === 'delivery' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-purple-500/10 text-purple-400')}>
+                            {order.orderType}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold', st.bg, st.color)}>
+                            {st.label}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 hidden lg:table-cell">
+                          <span className="text-brand-cream/50 text-xs">{formatDate(order.createdAt)}</span>
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {next && (
+                              <button
+                                onClick={() => updateStatus(order._id, next)}
+                                disabled={updatingId === order._id}
+                                className="text-xs font-bold bg-brand-yellow/15 text-brand-yellow px-3 py-1 rounded-xl hover:bg-brand-yellow hover:text-brand-black transition-all disabled:opacity-50"
+                              >
+                                {updatingId === order._id ? '...' : `Mark ${statusConfig[next]?.label}`}
+                              </button>
+                            )}
                             <button
-                              onClick={() => updateStatus(order._id, next)}
-                              disabled={updatingId === order._id}
-                              className="text-xs bg-brand-yellow/10 text-brand-yellow px-2.5 py-1 rounded hover:bg-brand-yellow/20 transition-colors disabled:opacity-50"
+                              onClick={() => setSelectedInvoiceOrder(order as unknown as InvoiceOrderData)}
+                              className="text-brand-cream/60 hover:text-brand-yellow p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                              title="Print / View Invoice Receipt"
                             >
-                              {updatingId === order._id ? '...' : `Mark ${statusConfig[next]?.label}`}
+                              <Receipt size={16} />
                             </button>
-                          )}
-                          <button
-                            onClick={() => setSelectedInvoiceOrder(order as unknown as InvoiceOrderData)}
-                            className="text-brand-yellow/60 hover:text-brand-yellow p-1 transition-colors"
-                            title="Print / View Invoice Receipt"
-                          >
-                            <Receipt size={16} />
-                          </button>
-                          <Link
-                            href={`/admin/orders/${order._id}`}
-                            className="text-brand-cream/40 hover:text-brand-cream p-1 transition-colors"
-                            title="View Order Details"
-                          >
-                            <Eye size={16} />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                            <Link
+                              href={`/admin/orders/${order._id}`}
+                              className="text-brand-cream/60 hover:text-brand-cream p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                              title="View Order Details"
+                            >
+                              <Eye size={16} />
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

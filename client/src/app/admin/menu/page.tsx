@@ -146,7 +146,7 @@ export default function AdminMenuPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="relative flex-1">
           <Search
             size={18}
@@ -156,19 +156,19 @@ export default function AdminMenuPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search items..."
-            className="w-full bg-brand-surface-light border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-brand-cream text-sm placeholder-brand-cream/30 focus:outline-none focus:border-brand-yellow transition-colors"
+            placeholder="Search food items..."
+            className="w-full bg-brand-surface-light border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-brand-cream text-sm placeholder-brand-cream/30 focus:outline-none focus:border-brand-yellow transition-colors shadow-sm"
           />
         </div>
-        <div className="flex gap-1 bg-brand-surface-light rounded-lg border border-white/10 p-1">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar bg-brand-surface-light rounded-xl border border-white/10 p-1 shrink-0">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={cn(
-                'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
+                'px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all',
                 activeTab === tab.key
-                  ? 'bg-brand-yellow text-brand-black'
+                  ? 'bg-brand-yellow text-brand-black shadow-md'
                   : 'text-brand-cream/60 hover:text-brand-cream'
               )}
             >
@@ -178,32 +178,120 @@ export default function AdminMenuPage() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Food Items List / Table */}
       {loading ? (
         <AdminTableSkeleton rows={5} />
       ) : filteredItems.length === 0 ? (
-        <div className="bg-brand-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <UtensilsCrossed size={48} className="mx-auto text-brand-cream/20 mb-4" />
-          <p className="text-brand-cream/50 text-lg">No menu items found</p>
+        <div className="bg-brand-surface-light rounded-2xl border border-white/10 p-12 text-center shadow-xl space-y-3">
+          <UtensilsCrossed size={48} className="mx-auto text-brand-cream/20" />
+          <p className="text-brand-cream/60 text-base font-semibold">No menu items found</p>
           <Link
             href="/admin/menu/new"
-            className="mt-4 inline-flex items-center gap-2 text-brand-yellow hover:underline"
+            className="inline-flex items-center gap-2 btn-primary !h-10 text-xs px-5 shadow-md"
           >
-            <Plus size={16} /> Add your first item
+            <Plus size={15} /> Add your first dish
           </Link>
         </div>
       ) : (
-        <div className="bg-brand-surface-light rounded-xl border border-white/10 overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="bg-brand-surface-light rounded-2xl border border-white/10 overflow-hidden shadow-xl">
+          {/* 📱 Mobile Food Items Card View */}
+          <div className="sm:hidden divide-y divide-white/5">
+            {filteredItems.map((item) => (
+              <div key={item._id} className="p-4 space-y-3 hover:bg-white/[0.02] transition-colors">
+                <div className="flex items-center gap-3">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-14 h-14 rounded-xl object-cover shrink-0 border border-white/10 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-brand-surface rounded-xl flex items-center justify-center shrink-0 border border-white/10">
+                      <UtensilsCrossed size={20} className="text-brand-cream/30" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <h3 className="text-brand-cream font-bold text-sm truncate">{item.name}</h3>
+                      <span className="text-brand-yellow font-black text-sm shrink-0">৳{item.price}</span>
+                    </div>
+                    <p className="text-brand-cream/50 text-xs mt-0.5 truncate">{getCategoryName(item.category)}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', item.isAvailable ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30')}>
+                        {item.isAvailable ? 'Available' : 'Unavailable'}
+                      </span>
+                      {item.isFeatured && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-0.5">
+                          <Star size={9} className="fill-amber-400" />
+                          <span>Hero Featured</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Item Controls */}
+                <div className="pt-2 flex items-center justify-between gap-2 border-t border-white/5 text-xs">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => toggleAvailability(item._id)}
+                      disabled={togglingId === item._id}
+                      className={cn(
+                        'px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1 transition-all',
+                        item.isAvailable
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          : 'bg-white/5 text-brand-cream/60 border border-white/10'
+                      )}
+                    >
+                      <span>{item.isAvailable ? 'In Stock' : 'Out of Stock'}</span>
+                    </button>
+                    <button
+                      onClick={() => toggleFeatured(item._id)}
+                      disabled={togglingId === item._id}
+                      className={cn(
+                        'p-1.5 rounded-lg border transition-all',
+                        item.isFeatured
+                          ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                          : 'bg-brand-surface text-brand-cream/40 border-white/10'
+                      )}
+                      title="Toggle Hero"
+                    >
+                      <Star size={14} className={item.isFeatured ? 'fill-amber-400' : ''} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href={`/admin/menu/${item._id}/edit`}
+                      className="p-1.5 rounded-lg bg-brand-surface border border-brand-border text-brand-cream/80 hover:text-brand-yellow transition-colors"
+                      title="Edit Item"
+                    >
+                      <Pencil size={14} />
+                    </Link>
+                    <button
+                      onClick={() => setDeleteId(item._id)}
+                      className="p-1.5 rounded-lg bg-brand-surface border border-brand-border text-brand-cream/60 hover:text-red-400 transition-colors"
+                      title="Delete Item"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 💻 Desktop Table View */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3">Item</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3 hidden md:table-cell">Category</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3">Price</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3 hidden lg:table-cell">Available</th>
-                  <th className="text-left text-brand-cream/50 text-sm font-medium px-5 py-3 hidden lg:table-cell" title="Show in homepage Hero slider">Hero / Featured</th>
-                  <th className="text-right text-brand-cream/50 text-sm font-medium px-5 py-3">Actions</th>
+                  <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Item</th>
+                  <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5 hidden md:table-cell">Category</th>
+                  <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Price</th>
+                  <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5 hidden lg:table-cell">Available</th>
+                  <th className="text-left text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5 hidden lg:table-cell" title="Show in homepage Hero slider">Hero / Featured</th>
+                  <th className="text-right text-brand-cream/50 text-xs font-bold uppercase tracking-wider px-5 py-3.5">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,33 +300,36 @@ export default function AdminMenuPage() {
                     key={item._id}
                     className="border-b border-white/5 last:border-0 hover:bg-brand-surface-hover transition-colors"
                   >
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         {item.image ? (
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="w-10 h-10 rounded-lg object-cover"
+                            className="w-11 h-11 rounded-xl object-cover border border-white/10 shadow-sm shrink-0"
                           />
                         ) : (
-                          <div className="w-10 h-10 bg-brand-surface rounded-lg flex items-center justify-center">
-                            <UtensilsCrossed size={16} className="text-brand-cream/30" />
+                          <div className="w-11 h-11 bg-brand-surface rounded-xl flex items-center justify-center border border-white/10 shrink-0">
+                            <UtensilsCrossed size={18} className="text-brand-cream/30" />
                           </div>
                         )}
-                        <span className="text-brand-cream text-sm font-medium">{item.name}</span>
+                        <div>
+                          <span className="text-brand-cream text-sm font-bold block">{item.name}</span>
+                          <span className="text-brand-cream/40 text-xs md:hidden">{getCategoryName(item.category)}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-brand-cream/60 text-sm hidden md:table-cell">
+                    <td className="px-5 py-3.5 text-brand-cream/70 text-sm hidden md:table-cell font-medium">
                       {getCategoryName(item.category)}
                     </td>
-                    <td className="px-5 py-3 text-brand-cream text-sm">৳{item.price}</td>
-                    <td className="px-5 py-3 hidden lg:table-cell">
+                    <td className="px-5 py-3.5 text-brand-yellow font-bold text-sm">৳{item.price}</td>
+                    <td className="px-5 py-3.5 hidden lg:table-cell">
                       <button
                         onClick={() => toggleAvailability(item._id)}
                         disabled={togglingId === item._id}
                         className={cn(
                           'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                          item.isAvailable ? 'bg-green-500' : 'bg-white/20'
+                          item.isAvailable ? 'bg-emerald-500' : 'bg-white/20'
                         )}
                       >
                         <span
@@ -249,11 +340,11 @@ export default function AdminMenuPage() {
                         />
                       </button>
                     </td>
-                    <td className="px-5 py-3 hidden lg:table-cell">
+                    <td className="px-5 py-3.5 hidden lg:table-cell">
                       <button
                         onClick={() => toggleFeatured(item._id)}
                         disabled={togglingId === item._id}
-                        className="p-1"
+                        className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                       >
                         <Star
                           size={18}
@@ -266,17 +357,19 @@ export default function AdminMenuPage() {
                         />
                       </button>
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/admin/menu/${item._id}/edit`}
-                          className="p-2 text-brand-cream/50 hover:text-brand-yellow hover:bg-brand-surface-hover rounded-lg transition-colors"
+                          className="p-2 text-brand-cream/60 hover:text-brand-yellow hover:bg-white/5 rounded-xl transition-colors"
+                          title="Edit Item"
                         >
                           <Pencil size={16} />
                         </Link>
                         <button
                           onClick={() => setDeleteId(item._id)}
-                          className="p-2 text-brand-cream/50 hover:text-red-400 hover:bg-brand-surface-hover rounded-lg transition-colors"
+                          className="p-2 text-brand-cream/60 hover:text-red-400 hover:bg-white/5 rounded-xl transition-colors"
+                          title="Delete Item"
                         >
                           <Trash2 size={16} />
                         </button>

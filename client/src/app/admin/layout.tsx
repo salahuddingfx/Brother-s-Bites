@@ -181,14 +181,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const hasAccessViolation =
     isStaffRestricted || isSettingsRestricted || isStaffManagementRestricted;
 
+  // Auto-close sidebar on route change on mobile
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      <div className="min-h-screen bg-brand-black flex">
+      <div className="min-h-screen bg-brand-black flex overflow-x-hidden">
         {/* Mobile Backdrop */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-200"
             onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
           />
         )}
 
@@ -221,10 +227,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-brand-cream/60 hover:text-brand-cream p-1.5 rounded-lg hover:bg-white/5"
+              className="lg:hidden text-brand-cream/60 hover:text-brand-cream p-1.5 rounded-lg hover:bg-white/5 active:scale-95 transition-transform"
               aria-label="Close sidebar"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
 
@@ -314,36 +320,38 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </aside>
 
         {/* Main Content Area */}
-        <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+        <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0 w-full overflow-x-hidden">
           {/* Top Header */}
-          <header className="sticky top-0 z-30 bg-brand-surface-light/90 backdrop-blur-md border-b border-brand-border shadow-sm">
-            <div className="flex items-center justify-between px-4 sm:px-6 h-16">
-              <div className="flex items-center gap-3">
+          <header className="sticky top-0 z-30 bg-brand-surface-light/95 backdrop-blur-md border-b border-brand-border shadow-sm">
+            <div className="flex items-center justify-between px-3.5 sm:px-6 h-16">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden text-brand-cream/70 hover:text-brand-cream p-1.5 rounded-lg hover:bg-white/5"
+                  className="lg:hidden text-brand-cream/80 hover:text-brand-cream p-2 rounded-xl bg-brand-surface border border-brand-border hover:bg-white/5 active:scale-95 transition-all shrink-0"
                   aria-label="Open navigation sidebar"
                 >
-                  <Menu size={22} />
+                  <Menu size={20} />
                 </button>
-                <div className="lg:hidden flex items-center gap-2">
-                  <div className="w-7 h-7 bg-brand-yellow rounded-lg flex items-center justify-center font-black text-xs text-black">
+                <div className="lg:hidden flex items-center gap-2 min-w-0">
+                  <div className="w-7 h-7 bg-brand-yellow rounded-lg flex items-center justify-center font-black text-xs text-black shrink-0">
                     BB
                   </div>
-                  <span className="text-brand-cream font-bold text-sm">Admin</span>
+                  <span className="text-brand-cream font-bold text-xs sm:text-sm truncate">
+                    {navItems.find((item) => isActive(item.href))?.label || 'Admin Control'}
+                  </span>
                 </div>
                 <div className="hidden lg:flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-cream/60">
                   <span>Brother&apos;s Bites Control Center</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href="/"
                   target="_blank"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-surface border border-brand-border text-xs font-bold text-brand-cream/80 hover:text-brand-yellow hover:border-brand-yellow/30 transition-all shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-brand-surface border border-brand-border text-xs font-bold text-brand-cream/80 hover:text-brand-yellow hover:border-brand-yellow/30 transition-all shadow-sm"
                 >
-                  <Eye size={13} className="text-brand-yellow" />
+                  <Eye size={13} className="text-brand-yellow shrink-0" />
                   <span className="hidden sm:inline">View Live Site</span>
                 </Link>
 
@@ -353,7 +361,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </header>
 
           {/* Page Content or Access Guard */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-brand-black">
+          <main className="flex-1 p-3.5 sm:p-6 lg:p-8 bg-brand-black pb-24 lg:pb-8 w-full min-w-0 overflow-x-hidden">
             {hasAccessViolation ? (
               <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-6">
                 <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 mb-4">
@@ -374,6 +382,75 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               children
             )}
           </main>
+
+          {/* 📱 Mobile Quick Bottom Navigation Bar */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-brand-surface-light/95 backdrop-blur-xl border-t border-brand-border shadow-[0_-10px_25px_rgba(0,0,0,0.5)]">
+            <div className="grid grid-cols-5 items-center px-1 py-1.5 safe-area-bottom">
+              <Link
+                href="/admin/dashboard"
+                className={cn(
+                  'flex flex-col items-center justify-center py-1 rounded-xl transition-all',
+                  pathname === '/admin/dashboard'
+                    ? 'text-brand-yellow font-bold'
+                    : 'text-brand-cream/60 hover:text-brand-cream'
+                )}
+              >
+                <LayoutDashboard size={18} />
+                <span className="text-[10px] mt-0.5">Home</span>
+              </Link>
+
+              <Link
+                href="/admin/orders"
+                className={cn(
+                  'relative flex flex-col items-center justify-center py-1 rounded-xl transition-all',
+                  pathname.startsWith('/admin/orders')
+                    ? 'text-brand-yellow font-bold'
+                    : 'text-brand-cream/60 hover:text-brand-cream'
+                )}
+              >
+                <ShoppingBag size={18} />
+                <span className="text-[10px] mt-0.5">Orders</span>
+                {pendingOrdersCount > 0 && (
+                  <span className="absolute top-0 right-3.5 w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                )}
+              </Link>
+
+              <Link
+                href="/admin/menu"
+                className={cn(
+                  'flex flex-col items-center justify-center py-1 rounded-xl transition-all',
+                  pathname.startsWith('/admin/menu')
+                    ? 'text-brand-yellow font-bold'
+                    : 'text-brand-cream/60 hover:text-brand-cream'
+                )}
+              >
+                <UtensilsCrossed size={18} />
+                <span className="text-[10px] mt-0.5">Menu</span>
+              </Link>
+
+              <Link
+                href="/admin/analytics"
+                className={cn(
+                  'flex flex-col items-center justify-center py-1 rounded-xl transition-all',
+                  pathname.startsWith('/admin/analytics')
+                    ? 'text-brand-yellow font-bold'
+                    : 'text-brand-cream/60 hover:text-brand-cream'
+                )}
+              >
+                <BarChart3 size={18} />
+                <span className="text-[10px] mt-0.5">Traffic</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="flex flex-col items-center justify-center py-1 rounded-xl text-brand-cream/60 hover:text-brand-cream transition-all"
+              >
+                <Menu size={18} />
+                <span className="text-[10px] mt-0.5">More</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </AuthContext.Provider>
