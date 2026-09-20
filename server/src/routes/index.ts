@@ -12,6 +12,7 @@ import reviewRoutes from './review.routes';
 import userRoutes from './user.routes';
 import analyticsRoutes from './analytics.routes';
 import liveRoutes from './live.routes';
+import contactRoutes from './contact.routes';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/upload', uploadRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/live', liveRoutes);
+router.use('/contact', contactRoutes);
 
 export default router;

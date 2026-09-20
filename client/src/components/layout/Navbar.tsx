@@ -21,12 +21,13 @@ import ThemeToggle from '@/components/common/ThemeToggle';
 import { CartNavButton } from '@/components/cart/CartDrawer';
 import { useAuth } from '@/context/AuthContext';
 
-// Main navigation links including Track Order
+// Main navigation links including Track Order and FAQ
 const mainNavLinks = [
   { href: '/', label: 'Home' },
   { href: '/menu', label: 'Menu' },
   { href: '/offers', label: 'Offers' },
   { href: '/track-order', label: 'Track Order' },
+  { href: '/faq', label: 'FAQ' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];

@@ -17,7 +17,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <CartProvider>
         <div className="min-h-screen flex flex-col bg-brand-black text-brand-cream relative">
           <Navbar />
-          <main className={isHome ? 'flex-1' : 'flex-1 pt-20 md:pt-24'}>
+          <main className={isHome ? 'flex-1 w-full min-w-0' : 'flex-1 pt-14 sm:pt-16 md:pt-20 w-full min-w-0'}>
             {children}
           </main>
           <Footer />

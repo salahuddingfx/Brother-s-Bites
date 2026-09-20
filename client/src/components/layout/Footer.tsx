@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Tag,
   Truck,
+  HelpCircle,
 } from 'lucide-react';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import FacebookIcon from '@/components/icons/FacebookIcon';
@@ -47,7 +48,9 @@ export default function Footer() {
     { href: '/location', label: 'Marine Drive GPS Map', icon: Navigation },
     { href: '/gallery', label: 'Beachside Photo Gallery', icon: Camera },
     { href: '/reviews', label: 'Customer Reviews & Wall', icon: Star },
+    { href: '/faq', label: 'Frequently Asked Questions', icon: HelpCircle, badge: 'FAQ' },
     { href: '/connect', label: 'Socials & Review Hub', icon: Share2, badge: 'New' },
+    { href: '/settings', label: 'Customer Profile & Settings', icon: Sparkles },
     { href: '/developer', label: 'Developer Portfolio', icon: ExternalLink },
   ];
 
