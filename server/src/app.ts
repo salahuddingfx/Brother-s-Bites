@@ -18,7 +18,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3000',
-  'https://brothers-bites.salahuddin.codes',
+  'https://bbites.salahuddin.codes',
 ].filter(Boolean);
 
 app.use(
