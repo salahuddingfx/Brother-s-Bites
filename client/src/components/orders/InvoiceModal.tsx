@@ -13,7 +13,12 @@ import {
   Calendar,
   CreditCard,
   ShieldCheck,
+  Tag,
+  Lock,
+  FileText,
+  ExternalLink,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface InvoiceOrderData {
   orderNumber: string;
@@ -45,26 +50,52 @@ export interface InvoiceOrderData {
   specialNotes?: string;
 }
 
+export type ThermalFormat = 'thermal_2inch' | 'thermal_mini';
+
 interface InvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: InvoiceOrderData | null;
+  canPrint?: boolean; // Only true for staff/admin, false for customers
 }
 
-export default function InvoiceModal({ isOpen, onClose, order }: InvoiceModalProps) {
+export default function InvoiceModal({
+  isOpen,
+  onClose,
+  order,
+  canPrint = false,
+}: InvoiceModalProps) {
   const [copied, setCopied] = useState(false);
+  const [thermalFormat, setThermalFormat] = useState<ThermalFormat>('thermal_2inch');
 
   if (!order) return null;
 
-  const handlePrint = () => {
+  const handlePrint = (format: ThermalFormat) => {
+    if (!canPrint) return;
+
+    // Inject dynamic @page rule for thermal printer
+    let styleEl = document.getElementById('dynamic-thermal-page-style') as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'dynamic-thermal-page-style';
+      document.head.appendChild(styleEl);
+    }
+
+    if (format === 'thermal_mini') {
+      styleEl.innerHTML = `@page { size: 1.75in 2in; margin: 0mm; }`;
+    } else {
+      styleEl.innerHTML = `@page { size: 58mm auto; margin: 0mm; }`;
+    }
+
     window.print();
   };
 
   const handleCopySummary = () => {
-    const text = `BROTHER'S BITES - OFFICIAL INVOICE
-Order ID: #${order.orderNumber}
+    const text = `*** BROTHER'S BITES ***
+Order: #${order.orderNumber}
 Date: ${new Date(order.createdAt).toLocaleString()}
 Customer: ${order.customer.name} (${order.customer.phone})
+Type: ${order.orderType.toUpperCase()}
 Status: ${order.status.toUpperCase()}
 Total: ৳${order.totalAmount}
 Payment: ${order.paymentMethod.toUpperCase()}
@@ -72,7 +103,7 @@ Payment: ${order.paymentMethod.toUpperCase()}
 Items:
 ${order.items.map((it) => `- ${it.name} x${it.quantity} = ৳${it.price * it.quantity}`).join('\n')}
 
-Sonar Para Beach, Marine Drive, Cox's Bazar
+Marine Drive, Sonar Para Beach, Cox's Bazar
 Phone: +880 1627-817436`;
 
     navigator.clipboard.writeText(text);
@@ -97,7 +128,9 @@ Phone: +880 1627-817436`;
       ]
         .filter(Boolean)
         .join(', ')
-    : 'Beachside Delivery / Pickup';
+    : 'Beachside Counter / Pickup';
+
+  const subtotal = Math.max(0, order.totalAmount - (order.deliveryFee || 0));
 
   return (
     <AnimatePresence>
@@ -118,233 +151,293 @@ Phone: +880 1627-817436`;
 
           {/* Modal Container */}
           <motion.div
-            id="printable-invoice-container"
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-2xl bg-white text-slate-900 rounded-2xl shadow-2xl z-10 overflow-hidden my-auto border border-slate-200 print:border-none print:shadow-none print:m-0 print:p-0 print:w-full print:max-w-full"
+            className="relative w-full max-w-2xl bg-brand-surface border border-white/10 text-brand-cream rounded-2xl shadow-2xl z-10 overflow-hidden my-auto print:border-none print:shadow-none print:m-0 print:p-0 print:w-auto print:bg-white print:text-black"
           >
             {/* Top Toolbar (Hidden when printing) */}
-            <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between border-b border-slate-800 print:hidden">
+            <div className="bg-brand-surface-light px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 print:hidden">
               <div className="flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-amber-400" />
-                <span className="font-bold text-sm tracking-wide">Customer Invoice & Receipt</span>
-                <span className="text-xs bg-amber-400/20 text-amber-300 font-semibold px-2 py-0.5 rounded ml-1">
+                <Receipt className="w-5 h-5 text-brand-yellow" />
+                <span className="font-bold text-sm tracking-wide text-brand-cream">
+                  {canPrint ? 'Thermal POS Cashier Invoice' : 'Customer Digital Receipt'}
+                </span>
+                <span className="text-xs bg-brand-yellow/15 text-brand-yellow font-mono font-bold px-2 py-0.5 rounded border border-brand-yellow/30 ml-1">
                   #{order.orderNumber}
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Format Switcher (Staff / Admin Only) */}
+                {canPrint && (
+                  <div className="flex items-center bg-black/40 p-1 rounded-lg border border-white/10 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setThermalFormat('thermal_2inch')}
+                      className={cn(
+                        'px-2.5 py-1 rounded font-medium transition-colors flex items-center gap-1.5',
+                        thermalFormat === 'thermal_2inch'
+                          ? 'bg-brand-yellow text-slate-950 font-bold'
+                          : 'text-brand-cream/60 hover:text-brand-cream'
+                      )}
+                    >
+                      <Receipt size={12} />
+                      <span>2&quot; POS (58mm)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setThermalFormat('thermal_mini')}
+                      className={cn(
+                        'px-2.5 py-1 rounded font-medium transition-colors flex items-center gap-1.5',
+                        thermalFormat === 'thermal_mini'
+                          ? 'bg-brand-yellow text-slate-950 font-bold'
+                          : 'text-brand-cream/60 hover:text-brand-cream'
+                      )}
+                    >
+                      <Tag size={12} />
+                      <span>1.75&quot; × 2&quot; Label</span>
+                    </button>
+                  </div>
+                )}
+
                 <button
                   onClick={handleCopySummary}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                  title="Copy invoice text"
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-brand-cream text-xs font-semibold flex items-center gap-1.5 transition-colors border border-white/10"
+                  title="Copy invoice summary"
                 >
-                  {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                  {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
                   <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
 
-                <button
-                  onClick={handlePrint}
-                  className="px-3.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
-                  title="Print or Save as PDF"
-                >
-                  <Printer size={14} />
-                  <span>Print / Save PDF</span>
-                </button>
+                {/* Print Button - Only for Staff / Admin */}
+                {canPrint ? (
+                  <>
+                    <a
+                      href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/orders/${order.orderNumber}/thermal?format=${thermalFormat === 'thermal_mini' ? 'mini' : '2inch'}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-brand-cream/80 hover:text-brand-cream text-xs font-semibold flex items-center gap-1 transition-colors border border-white/10"
+                      title="Open Server Thermal Print View"
+                    >
+                      <ExternalLink size={13} />
+                      <span className="hidden sm:inline">Server URL</span>
+                    </a>
+                    <button
+                      onClick={() => handlePrint(thermalFormat)}
+                      className="px-3.5 py-1.5 rounded-lg bg-brand-yellow hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 transition-colors shadow-sm"
+                      title="Print to Thermal POS Printer"
+                    >
+                      <Printer size={14} />
+                      <span>Print ({thermalFormat === 'thermal_2inch' ? '2" POS' : '1.75" Label'})</span>
+                    </button>
+                  </>
+                ) : (
+                  <div
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] text-brand-cream/50"
+                    title="Customer Digital View"
+                  >
+                    <Lock size={11} className="text-amber-400" />
+                    <span>Digital View</span>
+                  </div>
+                )}
 
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors ml-1"
-                  aria-label="Close invoice"
+                  className="p-1.5 text-brand-cream/60 hover:text-brand-cream rounded-lg hover:bg-white/5 transition-colors ml-1"
+                  aria-label="Close invoice modal"
                 >
                   <X size={18} />
                 </button>
               </div>
             </div>
 
-            {/* Printable Receipt Body */}
-            <div id="printable-invoice" className="p-6 sm:p-8 bg-white text-slate-800 print:p-4 print:text-black">
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-amber-400 flex items-center justify-center font-black text-slate-950 text-xl shadow-sm">
-                    BB
+            {/* Modal Body Container */}
+            <div className="p-4 sm:p-6 max-h-[75vh] overflow-y-auto flex flex-col items-center">
+              {/* Customer View Notice Banner if customer */}
+              {!canPrint && (
+                <div className="w-full mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs text-brand-cream/80">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-brand-yellow shrink-0" />
+                    <span>
+                      Official Digital Customer Invoice. <em>(Thermal paper receipt printed at restaurant counter)</em>
+                    </span>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-950 tracking-tight uppercase">
-                      Brother&apos;s Bites
-                    </h2>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Beachside Flavors & Fast Food Restaurant
+                </div>
+              )}
+
+              {/* Thermal Paper Simulation Container */}
+              <div
+                id="printable-thermal-receipt"
+                className={cn(
+                  'bg-white text-black p-4 font-mono shadow-2xl rounded-sm transition-all duration-200 border border-slate-300 relative',
+                  thermalFormat === 'thermal_2inch' ? 'thermal-receipt-2in w-[320px] max-w-full' : 'thermal-receipt-mini w-[260px] max-w-full'
+                )}
+                style={{
+                  fontFamily: '"JetBrains Mono", "Courier New", Courier, monospace',
+                }}
+              >
+                {/* 2" Thermal Receipt Template */}
+                {thermalFormat === 'thermal_2inch' ? (
+                  <div className="space-y-2 text-[11px] leading-tight select-text text-black">
+                    {/* Header */}
+                    <div className="text-center pb-1 border-b border-dashed border-black">
+                      <p className="font-black text-sm tracking-tighter uppercase">*** BROTHER&apos;S BITES ***</p>
+                      <p className="text-[10px]">Marine Drive, Sonar Para Beach</p>
+                      <p className="text-[10px]">Cox&apos;s Bazar · 01627-817436</p>
+                      <p className="text-[10px] font-bold mt-0.5">** CASHIER TAX INVOICE **</p>
+                    </div>
+
+                    {/* Order Meta */}
+                    <div className="text-[10px] space-y-0.5 pt-1 border-b border-dashed border-black pb-1">
+                      <div className="flex justify-between">
+                        <span>ORDER: <strong className="font-bold">#{order.orderNumber}</strong></span>
+                        <span className="font-bold uppercase">[{order.orderType}]</span>
+                      </div>
+                      <div className="flex justify-between text-[9px] text-gray-700">
+                        <span>DATE: {formattedDate}</span>
+                        <span>STATUS: {order.status.toUpperCase()}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px] pt-0.5">
+                        <span>CUSTOMER:</span>
+                        <span className="font-bold truncate max-w-[150px]">{order.customer.name}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px]">
+                        <span>PHONE:</span>
+                        <span>{order.customer.phone}</span>
+                      </div>
+                      {order.customer.address?.street && (
+                        <p className="text-[9px] text-gray-600 truncate">
+                          ADDR: {fullAddress}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Items Table */}
+                    <div className="pt-1 pb-1 border-b border-dashed border-black">
+                      <div className="flex justify-between text-[10px] font-bold pb-1 border-b border-black">
+                        <span className="w-1/2 text-left">ITEM</span>
+                        <span className="w-1/6 text-center">QTY</span>
+                        <span className="w-1/3 text-right">TOTAL</span>
+                      </div>
+                      <div className="space-y-1 pt-1">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="text-[10px]">
+                            <div className="flex justify-between items-start">
+                              <span className="w-1/2 font-semibold truncate pr-1">{item.name}</span>
+                              <span className="w-1/6 text-center">x{item.quantity}</span>
+                              <span className="w-1/3 text-right font-bold">৳{item.price * item.quantity}</span>
+                            </div>
+                            {item.specialInstructions && (
+                              <p className="text-[9px] italic text-gray-700 pl-1">
+                                &gt; {item.specialInstructions}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Total Summary */}
+                    <div className="space-y-0.5 text-[10px] pt-1">
+                      <div className="flex justify-between">
+                        <span>SUBTOTAL:</span>
+                        <span>৳{subtotal}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>DELIVERY FEE:</span>
+                        <span>{order.deliveryFee && order.deliveryFee > 0 ? `৳${order.deliveryFee}` : '৳0 (FREE)'}</span>
+                      </div>
+                      <div className="flex justify-between text-xs font-black pt-1 border-t border-black">
+                        <span>GRAND TOTAL:</span>
+                        <span className="text-sm">৳{order.totalAmount}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px] font-bold pt-0.5">
+                        <span>PAYMENT:</span>
+                        <span className="uppercase">{order.paymentMethod} {order.paymentStatus ? `(${order.paymentStatus})` : ''}</span>
+                      </div>
+                    </div>
+
+                    {/* Barcode & Footer */}
+                    <div className="text-center pt-2 border-t border-dashed border-black space-y-1">
+                      <div className="font-mono text-[9px] tracking-widest bg-gray-100 py-0.5 border border-gray-300">
+                        * {order.orderNumber} *
+                      </div>
+                      <p className="text-[9px] font-bold">*** THANK YOU! VISIT AGAIN ***</p>
+                      <p className="text-[8px] text-gray-600">Taste the Brotherhood by the Beach</p>
+                    </div>
+                  </div>
+                ) : (
+                  /* 1.75" x 2" Compact Sticker / Label Template */
+                  <div className="space-y-1 text-[9px] leading-tight select-text text-black">
+                    <div className="text-center border-b border-black pb-0.5">
+                      <p className="font-black text-[11px] uppercase tracking-tighter">BROTHER&apos;S BITES</p>
+                      <div className="flex justify-between text-[8px] font-bold">
+                        <span>#{order.orderNumber}</span>
+                        <span className="uppercase">[{order.orderType}]</span>
+                      </div>
+                    </div>
+
+                    <div className="text-[8px] space-y-0.5 py-0.5 border-b border-dashed border-black">
+                      <div className="flex justify-between">
+                        <span className="font-bold truncate max-w-[130px]">{order.customer.name}</span>
+                        <span>{order.customer.phone}</span>
+                      </div>
+                    </div>
+
+                    {/* Compact Item List */}
+                    <div className="space-y-0.5 text-[8.5px] py-0.5 border-b border-black font-semibold">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between">
+                          <span className="truncate max-w-[160px]">{item.name}</span>
+                          <span>x{item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Bottom Total */}
+                    <div className="flex justify-between items-baseline text-[10px] font-black pt-0.5">
+                      <span>TOTAL:</span>
+                      <span>৳{order.totalAmount} ({order.paymentMethod.toUpperCase()})</span>
+                    </div>
+
+                    <p className="text-[7.5px] text-center text-gray-600 pt-0.5 border-t border-dashed border-gray-400">
+                      Sonar Para Beach • Marine Drive
                     </p>
-                    <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                      <MapPin size={11} className="text-amber-500" />
-                      <span>Sonar Para Beach, Marine Drive, Cox&apos;s Bazar</span>
-                    </p>
                   </div>
-                </div>
-
-                <div className="sm:text-right">
-                  <div className="inline-block bg-slate-100 text-slate-800 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider mb-1">
-                    OFFICIAL INVOICE
-                  </div>
-                  <p className="text-xs font-bold text-slate-950">
-                    Order ID: <span className="font-mono text-amber-600">#{order.orderNumber}</span>
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5 flex items-center sm:justify-end gap-1">
-                    <Calendar size={11} />
-                    <span>{formattedDate}</span>
-                  </p>
-                </div>
-              </div>
-
-              {/* Customer & Order Metadata */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-5 border-b border-slate-200 text-xs">
-                {/* Customer Information */}
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Billed To / Customer
-                  </p>
-                  <p className="font-bold text-slate-900 text-sm">{order.customer.name}</p>
-                  <p className="text-slate-600 flex items-center gap-1 mt-1 font-mono">
-                    <Phone size={11} className="text-amber-600" />
-                    <span>{order.customer.phone}</span>
-                  </p>
-                  {order.customer.email && (
-                    <p className="text-slate-500 text-[11px] mt-0.5">{order.customer.email}</p>
-                  )}
-                  <p className="text-slate-600 mt-1 leading-relaxed text-[11px]">
-                    <strong>Destination:</strong> {fullAddress}
-                  </p>
-                </div>
-
-                {/* Order Status & Payment */}
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Order & Payment Details
-                  </p>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Order Type:</span>
-                      <span className="font-bold text-slate-800 uppercase bg-white px-2 py-0.5 rounded border border-slate-200">
-                        {order.orderType}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Order Status:</span>
-                      <span className="font-bold uppercase text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                        {order.status}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-500">Payment:</span>
-                      <span className="font-bold text-slate-800 uppercase flex items-center gap-1">
-                        <CreditCard size={11} className="text-slate-500" />
-                        <span>{order.paymentMethod}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Itemized Table */}
-              <div className="py-4">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="border-b-2 border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-                      <th className="py-2.5 text-left">Item Description</th>
-                      <th className="py-2.5 text-center w-16">Qty</th>
-                      <th className="py-2.5 text-right w-24">Unit Price</th>
-                      <th className="py-2.5 text-right w-24">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {order.items.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50/50">
-                        <td className="py-3 text-left">
-                          <p className="font-bold text-slate-900">{item.name}</p>
-                          {item.specialInstructions && (
-                            <p className="text-[10px] text-slate-500 italic mt-0.5">
-                              Note: {item.specialInstructions}
-                            </p>
-                          )}
-                        </td>
-                        <td className="py-3 text-center font-bold text-slate-700">
-                          {item.quantity}
-                        </td>
-                        <td className="py-3 text-right text-slate-600 font-mono">
-                          ৳{item.price}
-                        </td>
-                        <td className="py-3 text-right font-bold text-slate-900 font-mono">
-                          ৳{item.price * item.quantity}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Total Calculation Card */}
-              <div className="border-t-2 border-slate-200 pt-4 flex flex-col sm:flex-row justify-between items-start gap-4">
-                <div className="text-xs text-slate-500 max-w-xs space-y-1">
-                  <p className="flex items-center gap-1 font-semibold text-slate-700">
-                    <ShieldCheck size={14} className="text-emerald-600" />
-                    <span>Verified Brother&apos;s Bites Order</span>
-                  </p>
-                  <p className="text-[11px] text-slate-500 leading-tight">
-                    Thank you for dining with Brother&apos;s Bites at Marine Drive! For any queries or repeat orders, please call +880 1627-817436.
-                  </p>
-                </div>
-
-                <div className="w-full sm:w-64 bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Subtotal:</span>
-                    <span className="font-mono">৳{Math.max(0, order.totalAmount - (order.deliveryFee || 0))}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-600">
-                    <span>Delivery Charge:</span>
-                    {order.deliveryFee && order.deliveryFee > 0 ? (
-                      <span className="font-mono text-slate-900 font-bold">৳{order.deliveryFee}</span>
-                    ) : (
-                      <span className="font-mono text-emerald-600 font-bold">FREE / Pickup</span>
-                    )}
-                  </div>
-                  <div className="border-t border-slate-200 pt-2 flex justify-between items-baseline font-black text-slate-950 text-base">
-                    <span>Grand Total:</span>
-                    <span className="text-amber-600 font-mono text-lg">৳{order.totalAmount}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Receipt Footer */}
-              <div className="mt-8 pt-4 border-t border-dashed border-slate-200 text-center text-[10px] text-slate-400">
-                <p className="font-semibold text-slate-600">BROTHER&apos;S BITES • COX&apos;S BAZAR</p>
-                <p className="mt-0.5">Marine Drive, Sonar Para Beach • Hotline: +880 1627-817436</p>
-                <p className="mt-1">Computer-generated official digital tax receipt & invoice</p>
+                )}
               </div>
             </div>
 
-            {/* Bottom Modal Actions (Hidden when printing) */}
-            <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
-              <p className="text-xs text-slate-500 text-center sm:text-left">
-                Need a paper copy? Click <strong>Print / Save PDF</strong> above or below.
+            {/* Modal Bottom Actions */}
+            <div className="bg-brand-surface-light px-6 py-3.5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
+              <p className="text-xs text-brand-cream/60">
+                {canPrint ? (
+                  <span>
+                    Format: <strong>{thermalFormat === 'thermal_2inch' ? '2" POS Standard (58mm)' : '1.75" × 2" Mini Label'}</strong>
+                  </span>
+                ) : (
+                  <span>Official Brother&apos;s Bites Digital Receipt</span>
+                )}
               </p>
+
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={onClose}
-                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-brand-cream text-xs font-bold transition-colors border border-white/10"
                 >
                   Close
                 </button>
-                <button
-                  onClick={handlePrint}
-                  className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black flex items-center justify-center gap-1.5 transition-colors shadow"
-                >
-                  <Printer size={14} />
-                  <span>Print Invoice</span>
-                </button>
+                {canPrint && (
+                  <button
+                    onClick={() => handlePrint(thermalFormat)}
+                    className="flex-1 sm:flex-none px-5 py-2 rounded-xl bg-brand-yellow hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center justify-center gap-1.5 transition-colors shadow"
+                  >
+                    <Printer size={14} />
+                    <span>Print Thermal Receipt</span>
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

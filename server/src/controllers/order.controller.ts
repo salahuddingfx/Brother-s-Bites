@@ -10,6 +10,7 @@ import {
   generateAdminOrderNotificationEmail,
   generateOrderStatusUpdateEmail,
 } from '../utils/email';
+import { renderServerThermalReceipt } from '../views/thermalReceiptHtml';
 
 const generateOrderNumber = (): string => {
   const date = new Date();
@@ -262,5 +263,37 @@ export const getMyOrders = async (req: AuthRequest, res: Response): Promise<void
   } catch (error) {
     console.error('Error in getMyOrders:', error);
     sendError(res, 'Failed to fetch customer orders', 500);
+  }
+};
+
+export const getThermalReceipt = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const format = req.query.format === 'mini' ? 'mini' : '2inch';
+    const autoprint = req.query.autoprint === '1' || req.query.autoprint === 'true';
+
+    let order = null;
+    if (id.startsWith('BB-')) {
+      order = await Order.findOne({ orderNumber: id });
+    } else {
+      order = await Order.findById(id);
+    }
+
+    if (!order) {
+      sendError(res, 'Order not found', 404);
+      return;
+    }
+
+    const acceptsHtml = req.accepts('html', 'json') === 'html';
+    if (acceptsHtml && req.query.json !== 'true') {
+      const html = renderServerThermalReceipt(order as any, format, autoprint);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+      return;
+    }
+
+    sendSuccess(res, order, 200);
+  } catch (error: any) {
+    sendError(res, error.message || 'Server error', 500);
   }
 };

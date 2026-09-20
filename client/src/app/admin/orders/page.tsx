@@ -207,6 +207,7 @@ export default function AdminOrdersPage() {
           isOpen={!!selectedInvoiceOrder}
           onClose={() => setSelectedInvoiceOrder(null)}
           order={selectedInvoiceOrder}
+          canPrint={true}
         />
       )}
 

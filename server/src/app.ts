@@ -11,6 +11,7 @@ import { connectDB } from './config/db';
 import routes from './routes';
 import { errorHandler } from './middleware/error.middleware';
 import { renderServerPortalHtml } from './views/serverPortalHtml';
+import { printServerBanner } from './utils/banner';
 
 const app = express();
 
@@ -152,20 +153,6 @@ app.use('/api/v1', routes);
 
 app.use(errorHandler);
 
-const banner = `
-╔═══════════════════════════════════════════╗
-║                                           ║
-║          🍔  BROTHER'S BITES  🍔          ║
-║           Digital Business Portal         ║
-║                                           ║
-╠═══════════════════════════════════════════╣
-║  API      : http://localhost:${config.port || 5000}       ║
-║  Mode     : ${config.nodeEnv?.padEnd(28)}║
-║  Health   : /api/health                   ║
-║  Routes   : /api/v1/*                     ║
-╚═══════════════════════════════════════════╝
-`;
-
 // Ensure DB is connected for serverless environments
 app.use(async (_req, _res, next) => {
   try {
@@ -179,7 +166,7 @@ app.use(async (_req, _res, next) => {
 const startServer = async (): Promise<void> => {
   await connectDB();
   app.listen(config.port, () => {
-    console.log(banner);
+    printServerBanner(config.port || 5000, config.nodeEnv || 'development');
   });
 };
 

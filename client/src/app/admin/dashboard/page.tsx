@@ -606,6 +606,7 @@ export default function AdminDashboardPage() {
           isOpen={!!selectedInvoiceOrder}
           onClose={() => setSelectedInvoiceOrder(null)}
           order={selectedInvoiceOrder}
+          canPrint={true}
         />
       )}
     </div>
