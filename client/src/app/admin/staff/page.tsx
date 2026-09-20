@@ -14,6 +14,8 @@ import {
   Trash2,
   Edit2,
   Lock,
+  Eye,
+  EyeOff,
   CheckCircle2,
   XCircle,
   Loader2,
@@ -42,6 +44,7 @@ export default function StaffManagementPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<UserRole>('staff');
   const [phone, setPhone] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -545,14 +548,24 @@ export default function StaffManagementPage() {
                   <label className="block text-xs font-semibold text-brand-cream/80 mb-1.5">
                     {createModalOpen ? 'Account Password *' : 'Change Password (Optional)'}
                   </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required={createModalOpen}
-                    placeholder={createModalOpen ? 'Min. 6 characters' : 'Leave blank to keep'}
-                    className="w-full bg-brand-surface border border-white/10 rounded-xl px-3.5 py-2.5 text-brand-cream text-xs sm:text-sm focus:outline-none focus:border-brand-yellow"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required={createModalOpen}
+                      placeholder={createModalOpen ? 'Min. 6 characters' : 'Leave blank to keep'}
+                      className="w-full bg-brand-surface border border-white/10 rounded-xl pl-3.5 pr-10 py-2.5 text-brand-cream text-xs sm:text-sm focus:outline-none focus:border-brand-yellow"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-cream/40 hover:text-brand-cream transition-colors"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4 text-brand-yellow" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 

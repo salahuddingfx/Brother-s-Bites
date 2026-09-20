@@ -13,6 +13,7 @@ import {
   PackageCheck,
   LayoutDashboard,
   ChevronDown,
+  Settings,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -160,6 +161,14 @@ export default function Navbar() {
                           <PackageCheck size={14} className="text-brand-yellow" />
                           <span>My Orders & Profile</span>
                         </Link>
+                        <Link
+                          href="/settings"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-brand-cream/80 hover:text-brand-cream hover:bg-white/5 transition-colors"
+                        >
+                          <Settings size={14} className="text-brand-yellow" />
+                          <span>Account Settings</span>
+                        </Link>
                         {isStaff && (
                           <Link
                             href="/admin/dashboard"
@@ -248,40 +257,34 @@ export default function Navbar() {
               className="fixed top-20 inset-x-4 max-w-sm mx-auto z-50 md:hidden bg-brand-surface border border-brand-border rounded-3xl p-5 shadow-2xl overflow-hidden"
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-brand-border">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <img
-                    src="/images/logo.png"
-                    alt="Brother's Bites"
-                    className="h-7 w-auto object-contain rounded-md"
-                  />
-                  <span className="text-[10px] text-brand-yellow font-bold uppercase tracking-wider">
-                    Bites • Sips • Brotherhood
-                  </span>
+                  <img src="/images/logo-icon.png" alt="Brother's Bites" className="w-8 h-8 rounded-xl object-contain bg-black/40 p-1 border border-brand-yellow/30" />
+                  <span className="font-display font-black text-sm text-brand-cream tracking-tight">BROTHER&apos;S BITES</span>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 text-brand-cream/60 hover:text-brand-cream rounded-full hover:bg-white/5"
+                  className="p-1.5 rounded-full text-brand-cream/60 hover:text-brand-cream hover:bg-white/10 transition-colors"
                   aria-label="Close menu"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
               {/* Navigation Links */}
-              <div className="py-4 space-y-1.5">
+              <div className="space-y-1 py-1">
                 {mainNavLinks.map((link) => {
-                  const active = pathname === link.href;
+                  const isActive = pathname === link.href;
                   return (
                     <Link
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsOpen(false)}
                       className={cn(
-                        'block px-4 py-2.5 rounded-xl text-sm font-semibold transition-all',
-                        active
-                          ? 'bg-brand-yellow text-brand-black font-bold shadow-sm'
-                          : 'text-brand-cream/80 hover:bg-white/5 hover:text-brand-cream'
+                        'block px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all',
+                        isActive
+                          ? 'bg-brand-yellow text-brand-black shadow-sm font-extrabold'
+                          : 'text-brand-cream/80 hover:text-brand-cream hover:bg-white/5'
                       )}
                     >
                       {link.label}
@@ -290,13 +293,12 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* Quick Actions Footer */}
-              <div className="pt-4 border-t border-brand-border space-y-2.5">
-                {/* Mobile Auth Button */}
+              {/* User Section & Action Buttons */}
+              <div className="pt-3 mt-2 border-t border-white/10 space-y-2">
                 {user ? (
-                  <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
+                  <div className="p-2.5 rounded-2xl bg-white/[0.04] border border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-brand-yellow text-brand-black font-extrabold flex items-center justify-center text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-xl bg-brand-yellow text-brand-black font-black text-xs flex items-center justify-center shrink-0">
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
@@ -311,6 +313,14 @@ export default function Navbar() {
                         className="px-2.5 py-1 rounded-lg bg-brand-yellow/10 text-brand-yellow text-xs font-bold"
                       >
                         Profile
+                      </Link>
+                      <Link
+                        href="/settings"
+                        onClick={() => setIsOpen(false)}
+                        className="p-1.5 text-brand-cream/70 hover:bg-white/10 rounded-lg"
+                        title="Settings"
+                      >
+                        <Settings size={14} />
                       </Link>
                       <button
                         onClick={() => {

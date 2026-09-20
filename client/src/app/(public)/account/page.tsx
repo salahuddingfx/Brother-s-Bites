@@ -34,6 +34,7 @@ import {
   LogOut,
   Truck,
   Plus,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -369,6 +370,15 @@ export default function CustomerAccountPage() {
                 <RefreshCw size={13} className={cn(syncingOrders && 'animate-spin text-brand-yellow')} />
                 <span>{syncingOrders ? 'Syncing...' : 'Sync Orders'}</span>
               </button>
+
+              <Link
+                href="/settings"
+                className="flex-1 lg:flex-none btn-secondary !h-10 px-3.5 text-xs font-semibold gap-1.5"
+                title="Account Settings & Password Security"
+              >
+                <Settings size={14} className="text-brand-yellow" />
+                <span>Settings</span>
+              </Link>
 
               <Link
                 href="/menu"
