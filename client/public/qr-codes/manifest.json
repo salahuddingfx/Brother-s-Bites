@@ -1,0 +1,62 @@
+[
+  {
+    "id": "connect",
+    "name": "Brother's Bites — Connect & Social Hub",
+    "url": "https://bbites.salahuddin.codes/connect",
+    "desc": "Instant access to all social channels, reels & hotline",
+    "files": {
+      "svgDark": "/qr-codes/connect-qr-dark.svg",
+      "svgPrint": "/qr-codes/connect-qr-print.svg",
+      "pngDark": "/qr-codes/connect-qr-dark.png",
+      "pngPrint": "/qr-codes/connect-qr-print.png"
+    }
+  },
+  {
+    "id": "menu",
+    "name": "Brother's Bites — Digital Food Menu",
+    "url": "https://bbites.salahuddin.codes/menu",
+    "desc": "Scan to browse chicken momos, crunchy fuchka & teas",
+    "files": {
+      "svgDark": "/qr-codes/menu-qr-dark.svg",
+      "svgPrint": "/qr-codes/menu-qr-print.svg",
+      "pngDark": "/qr-codes/menu-qr-dark.png",
+      "pngPrint": "/qr-codes/menu-qr-print.png"
+    }
+  },
+  {
+    "id": "review",
+    "name": "Brother's Bites — Google Maps 5-Star Review",
+    "url": "https://g.page/r/CZY9cCNvq2_GEAE/review",
+    "desc": "Leave an instant 5-star rating on Google Maps",
+    "files": {
+      "svgDark": "/qr-codes/review-qr-dark.svg",
+      "svgPrint": "/qr-codes/review-qr-print.svg",
+      "pngDark": "/qr-codes/review-qr-dark.png",
+      "pngPrint": "/qr-codes/review-qr-print.png"
+    }
+  },
+  {
+    "id": "location",
+    "name": "Brother's Bites — Marine Drive GPS Map",
+    "url": "https://maps.app.goo.gl/Xni3a5YXNXsCe5zz5",
+    "desc": "Live Google Maps GPS directions to stall",
+    "files": {
+      "svgDark": "/qr-codes/location-qr-dark.svg",
+      "svgPrint": "/qr-codes/location-qr-print.svg",
+      "pngDark": "/qr-codes/location-qr-dark.png",
+      "pngPrint": "/qr-codes/location-qr-print.png"
+    }
+  },
+  {
+    "id": "website",
+    "name": "Brother's Bites — Official Website",
+    "url": "https://bbites.salahuddin.codes",
+    "desc": "Explore complete restaurant experience and ordering",
+    "files": {
+      "svgDark": "/qr-codes/website-qr-dark.svg",
+      "svgPrint": "/qr-codes/website-qr-print.svg",
+      "pngDark": "/qr-codes/website-qr-dark.png",
+      "pngPrint": "/qr-codes/website-qr-print.png"
+    }
+  }
+]
