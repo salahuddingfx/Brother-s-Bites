@@ -32,6 +32,52 @@ const ReviewModal = dynamic(() => import('@/components/reviews/ReviewModal'), { 
 export default function ConnectLandingPage() {
   const [copied, setCopied] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [activeSocialTab, setActiveSocialTab] = useState<'facebook' | 'instagram'>('facebook');
+
+  const instagramPosts = [
+    {
+      image: '/images/steam-momo.png',
+      caption: 'Hot juicy Chicken Steamed Momos served with our signature red spicy chutney 🥟🔥',
+      likes: '482',
+      comments: '38',
+      type: 'Reel',
+    },
+    {
+      image: '/images/shop/shop-1.jpg',
+      caption: 'Golden hour sunset rituals right on Sonar Para Beach, Marine Drive 🌅🏖️',
+      likes: '620',
+      comments: '54',
+      type: 'Photo',
+    },
+    {
+      image: '/images/shop/shop-7.jpg',
+      caption: 'Freshly brewed Special Masala Caramel Matka Tea by the ocean breeze ☕✨',
+      likes: '395',
+      comments: '29',
+      type: 'Reel',
+    },
+    {
+      image: '/images/shop/shop-10.jpg',
+      caption: 'Crispy street Naga Fuchka & Dahi Fuchka prepared fresh on order 🌶️👌',
+      likes: '512',
+      comments: '43',
+      type: 'Photo',
+    },
+    {
+      image: '/images/team/chef-ahammad.jpg',
+      caption: 'Head Chef Ahammad Bin Kashem curating coastal perfection at Brother&apos;s Bites 👨‍🍳✨',
+      likes: '740',
+      comments: '67',
+      type: 'Photo',
+    },
+    {
+      image: '/images/shop/shop-14.jpg',
+      caption: 'Midnight crowd & brotherhood vibes under the starry coastal sky 🌙❤️',
+      likes: '890',
+      comments: '82',
+      type: 'Reel',
+    },
+  ];
 
   const handleShare = async () => {
     const shareData = {
@@ -335,6 +381,207 @@ export default function ConnectLandingPage() {
                 </div>
               </a>
             ))}
+          </div>
+        </div>
+
+        {/* 🌟 Live Social Feed & Auto-Preview Section (Facebook & Instagram Embeds) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-yellow flex items-center gap-1.5">
+              <Camera size={14} className="text-brand-yellow" />
+              <span>Live Social Feed & Stories</span>
+            </span>
+            <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Live Updates</span>
+            </span>
+          </div>
+
+          <div className="rounded-3xl bg-brand-surface-light border border-brand-border overflow-hidden p-4 sm:p-6 space-y-5 shadow-2xl">
+            {/* Social Tab Switcher */}
+            <div className="flex items-center p-1 rounded-2xl bg-brand-black/70 border border-white/10">
+              <button
+                type="button"
+                onClick={() => setActiveSocialTab('facebook')}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeSocialTab === 'facebook'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                    : 'text-brand-cream/60 hover:text-brand-cream hover:bg-white/5'
+                }`}
+              >
+                <Globe size={14} />
+                <span>Facebook Live Feed</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveSocialTab('instagram')}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeSocialTab === 'instagram'
+                    ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white shadow-lg shadow-pink-600/30'
+                    : 'text-brand-cream/60 hover:text-brand-cream hover:bg-white/5'
+                }`}
+              >
+                <Camera size={14} />
+                <span>Instagram Visual Feed</span>
+              </button>
+            </div>
+
+            {/* Tab 1: Facebook Page Live Embed */}
+            {activeSocialTab === 'facebook' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-lg shrink-0">
+                      f
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-brand-cream">
+                        Brother&apos;s Bites Official Facebook Page
+                      </h4>
+                      <p className="text-[11px] text-blue-300">
+                        @brothersbites.bd • Daily posts, customer photos & updates
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="https://facebook.com/brothersbites.bd"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shrink-0"
+                  >
+                    <span>Follow Page</span>
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
+
+                {/* Facebook Iframe Container with Auto-adapt & styling */}
+                <div className="relative w-full rounded-2xl overflow-hidden bg-brand-black border border-white/10 flex flex-col items-center justify-center min-h-[480px]">
+                  <iframe
+                    src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fbrothersbites.bd&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
+                    width="100%"
+                    height="500"
+                    style={{ border: 'none', overflow: 'hidden' }}
+                    scrolling="no"
+                    frameBorder="0"
+                    allowFullScreen={true}
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    className="w-full max-w-[500px] rounded-2xl"
+                    title="Brother's Bites Facebook Page Live Feed"
+                  />
+                  
+                  <div className="w-full p-2.5 bg-brand-surface border-t border-white/10 text-center">
+                    <a
+                      href="https://facebook.com/brothersbites.bd"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-brand-cream/60 hover:text-brand-yellow font-medium inline-flex items-center gap-1"
+                    >
+                      <span>Can&apos;t load feed? View live on Facebook</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Tab 2: Instagram Visual Preview & Reels Grid */}
+            {activeSocialTab === 'instagram' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 border border-pink-500/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-pink-500 to-purple-600 text-white flex items-center justify-center shrink-0">
+                      <Camera size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-brand-cream">
+                        @brothersbites.bd on Instagram
+                      </h4>
+                      <p className="text-[11px] text-pink-300">
+                        Momos, tea rituals, beach sunsets & culinary vibes
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="https://instagram.com/brothersbites.bd"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-90 text-white text-xs font-bold transition-all shadow-md shrink-0"
+                  >
+                    <span>Follow on Insta</span>
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
+
+                {/* Visual Instagram Feed Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                  {instagramPosts.map((post, idx) => (
+                    <a
+                      key={idx}
+                      href="https://instagram.com/brothersbites.bd"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative aspect-square rounded-2xl overflow-hidden bg-brand-surface border border-white/10 hover:border-pink-500/50 transition-all duration-300 block shadow-md"
+                    >
+                      <Image
+                        src={post.image}
+                        alt={post.caption}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        sizes="(max-width: 640px) 50vw, 33vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-2.5 text-white">
+                        <div className="flex justify-end">
+                          <span className="px-2 py-0.5 rounded-full bg-pink-500/80 text-[10px] font-bold backdrop-blur-sm">
+                            {post.type}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold line-clamp-2 leading-snug">
+                            {post.caption}
+                          </p>
+                          <div className="flex items-center gap-3 mt-1 text-[10px] text-brand-cream/80">
+                            <span className="flex items-center gap-1">
+                              <Heart size={10} className="fill-rose-500 text-rose-500" />
+                              <span>{post.likes}</span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageSquare size={10} />
+                              <span>{post.comments}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-brand-black/60 backdrop-blur-md flex items-center justify-center text-white/80 group-hover:opacity-0 transition-opacity">
+                        <Camera size={12} />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+
+                <div className="p-3 rounded-2xl bg-brand-black/60 border border-white/10 text-center">
+                  <a
+                    href="https://instagram.com/brothersbites.bd"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-400 hover:text-pink-300 transition-colors"
+                  >
+                    <span>View all reels, stories and posts on Instagram @brothersbites.bd</span>
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
 

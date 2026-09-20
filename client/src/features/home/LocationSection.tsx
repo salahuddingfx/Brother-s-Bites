@@ -15,7 +15,7 @@ const defaultSection: Settings['location'] = {
   title: 'FIND OUR RESTAURANT',
   subtitle: 'Located right by the scenic coastal stretch of Sonar Para Beach.',
   embedMapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d232.34524772674902!2d92.04676015661319!3d21.290302964726862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc5b2179fe74d%3A0xc66fab6f23703d96!2sBrother%27s%20Bites!5e0!3m2!1sen!2sbd!4v1789874032852!5m2!1sen!2sbd',
-  directionsUrl: 'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319',
+  directionsUrl: 'https://maps.app.goo.gl/Xni3a5YXNXsCe5zz5',
 };
 
 export default function LocationSection() {

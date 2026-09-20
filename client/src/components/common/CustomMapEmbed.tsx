@@ -22,7 +22,7 @@ const SATELLITE_EMBED =
   'https://maps.google.com/maps?q=21.290302964726862,92.04676015661319+(Brother%27s+Bites)&t=k&z=19&ie=UTF8&iwloc=B&output=embed';
 
 const DEFAULT_DIRECTIONS =
-  'https://www.google.com/maps/search/?api=1&query=21.290302964726862,92.04676015661319';
+  'https://maps.app.goo.gl/Xni3a5YXNXsCe5zz5';
 
 export default function CustomMapEmbed({
   embedUrl = DEFAULT_STANDARD_EMBED,
