@@ -22,11 +22,11 @@ export default function ThemeToggle({ className, showLabel = false }: ThemeToggl
     return (
       <div
         className={cn(
-          'w-9 h-9 rounded-lg bg-brand-surface-light border border-white/10 flex items-center justify-center text-brand-cream/40',
+          'w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-brand-cream/40',
           className
         )}
       >
-        <Moon size={16} />
+        <Moon size={15} />
       </div>
     );
   }
@@ -38,9 +38,9 @@ export default function ThemeToggle({ className, showLabel = false }: ThemeToggl
       type="button"
       onClick={toggleTheme}
       className={cn(
-        'relative inline-flex items-center justify-center p-2 rounded-lg transition-colors focus:outline-none',
-        'bg-brand-surface-light border border-white/10 text-brand-cream hover:text-brand-yellow hover:border-brand-yellow/30',
-        showLabel ? 'gap-2 px-3.5 py-2' : 'w-9 h-9',
+        'relative inline-flex items-center justify-center rounded-full transition-all duration-200 focus:outline-none',
+        'bg-white/5 border border-white/10 text-brand-cream hover:text-brand-yellow hover:border-brand-yellow/30 hover:bg-white/10 active:scale-95',
+        showLabel ? 'gap-2 px-3.5 py-2 rounded-xl' : 'w-8 h-8 sm:w-9 sm:h-9 p-1.5',
         className
       )}
       aria-label={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}

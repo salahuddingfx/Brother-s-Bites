@@ -16,12 +16,12 @@ export function CartNavButton({ className }: { className?: string }) {
     <button
       onClick={toggleCart}
       className={cn(
-        'relative p-2 rounded-lg text-brand-cream/80 hover:text-brand-yellow hover:bg-white/5 transition-all focus:outline-none flex items-center justify-center',
+        'relative w-8 h-8 sm:w-9 sm:h-9 rounded-full text-brand-cream/80 hover:text-brand-yellow hover:bg-white/10 active:scale-95 transition-all focus:outline-none flex items-center justify-center shrink-0',
         className
       )}
       aria-label={`Open shopping cart (${cartCount} items)`}
     >
-      <ShoppingCart size={20} strokeWidth={2.2} />
+      <ShoppingCart size={18} strokeWidth={2.2} />
       {cartCount > 0 && (
         <span className="absolute -top-0.5 -right-0.5 bg-brand-yellow text-brand-black text-[10px] font-extrabold rounded-full flex items-center justify-center min-w-[18px] h-[18px] px-1 shadow-md border border-brand-black">
           {cartCount > 99 ? '99+' : cartCount}
