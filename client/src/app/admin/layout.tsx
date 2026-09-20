@@ -22,6 +22,7 @@ import {
   FolderTree,
   Users,
   ShieldAlert,
+  BarChart3,
 } from 'lucide-react';
 import { User, UserRole } from '@/types';
 import ThemeToggle from '@/components/common/ThemeToggle';
@@ -106,6 +107,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         icon: ShoppingBag,
         badge: pendingOrdersCount > 0 ? `${pendingOrdersCount} New` : undefined,
       },
+      { label: 'Visitor Analytics', href: '/admin/analytics', icon: BarChart3 },
       { label: 'Menu Items', href: '/admin/menu', icon: UtensilsCrossed },
       { label: 'Categories', href: '/admin/categories', icon: FolderTree },
       { label: 'Offers & Deals', href: '/admin/offers', icon: Tag },

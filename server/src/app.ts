@@ -58,9 +58,14 @@ app.use((req, res, next) => {
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'production' ? 2500 : 20000,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting in development or for health & analytics pings
+    if (process.env.NODE_ENV !== 'production') return true;
+    return req.path.includes('/health') || req.path.includes('/analytics/track');
+  },
   message: { success: false, message: 'Too many requests, please try again later' },
 });
 app.use('/api', limiter);

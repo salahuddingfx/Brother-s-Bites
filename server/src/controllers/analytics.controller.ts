@@ -89,14 +89,14 @@ export const getVisitorStats = async (req: Request, res: Response): Promise<void
     }
 
     // Aggregations in parallel
-    const [totalPageviews, uniqueVisitors, topPages, deviceBreakdown, browserBreakdown] = await Promise.all([
+    const [totalPageviews, uniqueVisitors, topPages, deviceBreakdown, browserBreakdown, recentVisits, timeline] = await Promise.all([
       Visitor.countDocuments(filter),
       Visitor.distinct('ipHash', filter).then((arr) => arr.length),
       Visitor.aggregate([
         { $match: filter },
         { $group: { _id: '$path', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-        { $limit: 6 },
+        { $limit: 10 },
       ]),
       Visitor.aggregate([
         { $match: filter },
@@ -107,6 +107,23 @@ export const getVisitorStats = async (req: Request, res: Response): Promise<void
         { $match: filter },
         { $group: { _id: '$browser', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
+      ]),
+      Visitor.find(filter)
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .select('path device browser referrer createdAt')
+        .lean(),
+      Visitor.aggregate([
+        { $match: filter },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: '+06:00' },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
       ]),
     ]);
 
@@ -119,6 +136,8 @@ export const getVisitorStats = async (req: Request, res: Response): Promise<void
         topPages: topPages.map((p) => ({ path: p._id, count: p.count })),
         deviceBreakdown: deviceBreakdown.map((d) => ({ device: d._id, count: d.count })),
         browserBreakdown: browserBreakdown.map((b) => ({ browser: b._id, count: b.count })),
+        recentVisits,
+        timeline: timeline.map((t) => ({ date: t._id, count: t.count })),
       },
     });
   } catch (error: any) {
