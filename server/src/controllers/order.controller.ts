@@ -11,6 +11,7 @@ import {
   generateOrderStatusUpdateEmail,
 } from '../utils/email';
 import { renderServerThermalReceipt } from '../views/thermalReceiptHtml';
+import { sseManager } from '../utils/sseManager';
 
 const generateOrderNumber = (): string => {
   const date = new Date();
@@ -55,7 +56,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     const sessionId = getSessionId(req);
     await Cart.findOneAndDelete({ sessionId });
 
-    // Notify admin
+    // Notify admin email
     const adminHtml = generateAdminOrderNotificationEmail({
       orderNumber: order.orderNumber,
       customer: order.customer,
@@ -67,6 +68,13 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     if (adminEmail) {
       sendEmail({ to: adminEmail, subject: `[New Order] #${order.orderNumber} - Brother's Bites`, html: adminHtml }).catch(() => {});
     }
+
+    // Real-time Live SSE Broadcast to Admin Dashboard
+    sseManager.broadcastAdmin('new_order', {
+      order,
+      timestamp: new Date().toISOString(),
+      message: `🔔 New Order #${order.orderNumber} received for ৳${order.totalAmount}`,
+    });
 
     sendSuccess(res, order, 201, 'Order placed successfully');
   } catch (error) {
@@ -202,6 +210,27 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response): Promis
         console.error('Failed to send delivery email:', err);
       });
     }
+
+    // Real-time Live SSE Broadcast
+    // 1. Broadcast to Admin
+    sseManager.broadcastAdmin('order_updated', {
+      order,
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      updatedAt: order.updatedAt,
+    });
+
+    // 2. Broadcast to specific Customer tracking channel
+    sseManager.broadcastOrder(order.orderNumber, 'order_status', {
+      order,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      updatedAt: order.updatedAt,
+      message: `Your order is now ${order.status}!`,
+    });
 
     sendSuccess(res, order, 200, 'Order status updated');
   } catch (error) {

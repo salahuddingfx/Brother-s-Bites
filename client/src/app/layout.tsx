@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import OfflineDetector from "@/components/common/OfflineDetector";
 import VisitorTracker from "../components/common/VisitorTracker";
+import ProductionGuard from "@/components/common/ProductionGuard";
 import { MASTER_SEO_KEYWORDS } from "@/lib/seoKeywords";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
@@ -157,6 +158,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <OfflineDetector />
           <VisitorTracker />
+          <ProductionGuard />
           {children}
         </ThemeProvider>
       </body>

@@ -14,7 +14,6 @@ import {
   LogOut,
   Menu,
   X,
-  Loader2,
   ShoppingBag,
   Eye,
   Star,
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react';
 import { User, UserRole } from '@/types';
 import ThemeToggle from '@/components/common/ThemeToggle';
+import AdminLayoutSkeleton from '@/components/skeletons/AdminLayoutSkeleton';
 
 interface AuthContextType {
   user: User | null;
@@ -146,14 +146,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-brand-black flex flex-col items-center justify-center gap-3">
-        <Loader2 className="animate-spin text-brand-yellow" size={36} />
-        <p className="text-brand-cream/60 text-xs font-semibold uppercase tracking-wider">
-          Loading Admin Control Center...
-        </p>
-      </div>
-    );
+    return <AdminLayoutSkeleton />;
   }
 
   if (!user) {

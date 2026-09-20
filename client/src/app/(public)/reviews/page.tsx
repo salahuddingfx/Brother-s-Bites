@@ -18,6 +18,7 @@ import {
 import api from '@/lib/api';
 import { Review, ReviewStats } from '@/types';
 import StarRating from '@/components/common/StarRating';
+import ReviewCardSkeleton from '@/components/skeletons/ReviewCardSkeleton';
 import ReviewModal from '@/components/reviews/ReviewModal';
 import { cn } from '@/lib/utils';
 
@@ -182,11 +183,7 @@ export default function ReviewsPage() {
 
         {/* Reviews Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card-bb p-6 h-52 animate-pulse bg-brand-surface-light" />
-            ))}
-          </div>
+          <ReviewCardSkeleton count={6} />
         ) : filteredReviews.length === 0 ? (
           <div className="card-bb p-16 text-center bg-brand-surface-light border-dashed border-brand-border">
             <Heart size={40} className="text-brand-yellow/40 mx-auto mb-3" />

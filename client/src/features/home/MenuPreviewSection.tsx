@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import SectionHeader from '@/components/common/SectionHeader';
 import MenuCard from '@/components/menu/MenuCard';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import MenuCardSkeleton from '@/components/skeletons/MenuCardSkeleton';
 import api from '@/lib/api';
 import { MenuItem, Category } from '@/types';
 import { cn } from '@/lib/utils';
@@ -90,7 +90,7 @@ export default function MenuPreviewSection() {
 
         {/* Grid or Loading */}
         {loading ? (
-          <LoadingSpinner />
+          <MenuCardSkeleton count={6} />
         ) : filteredItems.length > 0 ? (
           <motion.div
             initial={{ opacity: 0 }}

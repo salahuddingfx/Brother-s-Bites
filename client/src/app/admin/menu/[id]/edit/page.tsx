@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { Category, MenuItem } from '@/types';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Loader2, Upload, X, Star, Plus, Image as ImageIcon } from 'lucide-react';
+import AdminFormSkeleton from '@/components/skeletons/AdminFormSkeleton';
 
 interface ImageItem {
   id: string;
@@ -181,11 +182,7 @@ export default function AdminMenuEditPage({ params }: { params: Promise<{ id: st
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin text-brand-yellow" size={32} />
-      </div>
-    );
+    return <AdminFormSkeleton />;
   }
 
   return (

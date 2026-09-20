@@ -5,8 +5,10 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { Order } from '@/types';
 import { cn } from '@/lib/utils';
-import { Loader2, Eye, ChevronLeft, ChevronRight, Receipt } from 'lucide-react';
+import { Eye, ChevronLeft, ChevronRight, Receipt, Radio, BellRing } from 'lucide-react';
+import AdminTableSkeleton from '@/components/skeletons/AdminTableSkeleton';
 import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+import { useLiveSSE } from '@/hooks/useLiveSSE';
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: 'Pending', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
@@ -29,6 +31,34 @@ export default function AdminOrdersPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<InvoiceOrderData | null>(null);
+  const [newOrderAlert, setNewOrderAlert] = useState<{ orderNumber: string; totalAmount: number } | null>(null);
+
+  // Live SSE Subscription
+  const { isConnected } = useLiveSSE({
+    channel: 'admin',
+    onNewOrder: (payload) => {
+      const newOrd = payload.order;
+      if (newOrd) {
+        setNewOrderAlert({ orderNumber: newOrd.orderNumber, totalAmount: newOrd.totalAmount });
+        setOrders((prev) => {
+          if (prev.some((o) => o._id === newOrd._id)) return prev;
+          if (statusFilter === 'all' || statusFilter === 'pending' || statusFilter === newOrd.status) {
+            return [newOrd, ...prev];
+          }
+          return prev;
+        });
+        setTimeout(() => setNewOrderAlert(null), 8000);
+      }
+    },
+    onOrderUpdated: (payload) => {
+      const updatedOrd = payload.order;
+      if (updatedOrd) {
+        setOrders((prev) =>
+          prev.map((ord) => (ord._id === updatedOrd._id ? { ...ord, ...updatedOrd } : ord))
+        );
+      }
+    },
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -80,19 +110,56 @@ export default function AdminOrdersPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin text-brand-yellow" size={32} />
-      </div>
-    );
+    return <AdminTableSkeleton rows={5} />;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-brand-cream">Orders</h1>
-        <p className="text-brand-cream/50 mt-1">Manage incoming orders</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-cream">Orders</h1>
+          <p className="text-brand-cream/50 mt-1">Manage incoming orders</p>
+        </div>
+
+        {/* Live SSE Pulse Indicator */}
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 backdrop-blur-md',
+            isConnected
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
+              : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+          )}>
+            <span className="relative flex h-2 w-2">
+              {isConnected && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              )}
+              <span className={cn('relative inline-flex rounded-full h-2 w-2', isConnected ? 'bg-emerald-500' : 'bg-amber-500')}></span>
+            </span>
+            <span className="font-mono">{isConnected ? 'LIVE SSE CONNECTED' : 'CONNECTING...'}</span>
+          </div>
+        </div>
       </div>
+
+      {/* Real-time Order Popup Banner */}
+      {newOrderAlert && (
+        <div className="animate-in fade-in slide-in-from-top-4 duration-300 flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-brand-yellow/20 via-brand-yellow/10 to-transparent border border-brand-yellow/30 text-brand-cream">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-brand-yellow text-brand-black flex items-center justify-center font-bold animate-bounce">
+              <BellRing className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-brand-yellow text-sm">🎉 New Live Order Received!</p>
+              <p className="text-xs text-brand-cream/80">Order <span className="font-mono font-bold text-white">#{newOrderAlert.orderNumber}</span> for <span className="font-semibold text-brand-yellow">৳{newOrderAlert.totalAmount}</span> has just arrived.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setNewOrderAlert(null)}
+            className="text-brand-cream/40 hover:text-brand-cream text-xs px-2 py-1 rounded bg-white/5 border border-white/10"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Status Filter */}
       <div className="flex flex-wrap gap-2">

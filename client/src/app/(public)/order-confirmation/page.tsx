@@ -4,8 +4,9 @@ import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { CheckCircle, MapPin, Phone, Receipt, Loader2, Navigation } from 'lucide-react';
+import { CheckCircle, MapPin, Phone, Receipt, Navigation } from 'lucide-react';
 import api from '@/lib/api';
+import Skeleton from '@/components/ui/skeleton';
 import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
 
 function OrderConfirmationContent() {
@@ -166,7 +167,18 @@ function OrderConfirmationContent() {
 
 export default function OrderConfirmationPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-black pt-24 text-center text-brand-cream/50">Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-brand-black pt-24 pb-16">
+        <div className="container-bb max-w-2xl mx-auto space-y-6">
+          <div className="text-center space-y-3">
+            <Skeleton className="w-20 h-20 rounded-full mx-auto" />
+            <Skeleton className="h-7 w-48 rounded mx-auto" />
+            <Skeleton className="h-4 w-56 rounded mx-auto" />
+          </div>
+          <Skeleton className="h-64 rounded-xl" />
+        </div>
+      </div>
+    }>
       <OrderConfirmationContent />
     </Suspense>
   );

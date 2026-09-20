@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ImageIcon } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import GalleryGridSkeleton from '@/components/skeletons/GalleryGridSkeleton';
 import api from '@/lib/api';
 import { GalleryImage } from '@/types';
 
@@ -48,7 +48,7 @@ export default function GalleryPreviewSection() {
         />
 
         {loading ? (
-          <LoadingSpinner />
+          <GalleryGridSkeleton count={6} />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
             {images.length > 0 ? (

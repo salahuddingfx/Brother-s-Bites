@@ -28,6 +28,7 @@ import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import ReviewModal from '@/components/reviews/ReviewModal';
 import InvoiceModal from '@/components/orders/InvoiceModal';
+import { useLiveOrderTracking } from '@/hooks/useLiveOrderTracking';
 
 interface OrderItem {
   _id: string;
@@ -124,6 +125,19 @@ function TrackOrderContent() {
   const [copied, setCopied] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+
+  // Real-time SSE Live Order Tracking
+  const { isConnected: isLiveConnected } = useLiveOrderTracking({
+    orderNumber: activeOrder?.orderNumber,
+    onStatusUpdate: (payload) => {
+      if (payload.order) {
+        setActiveOrder((prev) => (prev ? { ...prev, ...payload.order } : payload.order));
+        setOrdersList((prevList) =>
+          prevList.map((ord) => (ord.orderNumber === payload.orderNumber ? { ...ord, ...payload.order } : ord))
+        );
+      }
+    },
+  });
 
   const fetchOrder = async (query: string) => {
     if (!query.trim()) return;
@@ -319,7 +333,17 @@ function TrackOrderContent() {
                     <span>Refresh</span>
                   </button>
 
-                  <div className="text-right sm:text-right">
+                  <div className="flex items-center gap-2">
+                    {isLiveConnected && activeOrder.status !== 'delivered' && activeOrder.status !== 'cancelled' && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>LIVE TRACKING</span>
+                      </span>
+                    )}
+
                     <span
                       className={cn(
                         'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',

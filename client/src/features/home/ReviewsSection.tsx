@@ -8,6 +8,7 @@ import api from '@/lib/api';
 import { Review, ReviewStats } from '@/types';
 import ReviewModal from '@/components/reviews/ReviewModal';
 import StarRating from '@/components/common/StarRating';
+import ReviewCardSkeleton from '@/components/skeletons/ReviewCardSkeleton';
 import { cn } from '@/lib/utils';
 
 export default function ReviewsSection() {
@@ -106,11 +107,7 @@ export default function ReviewsSection() {
       {/* Infinite Linear Carousel Marquee Track */}
       {loading ? (
         <div className="container-bb">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card-bb p-6 h-48 animate-pulse bg-brand-surface-light" />
-            ))}
-          </div>
+          <ReviewCardSkeleton count={3} />
         </div>
       ) : reviews.length === 0 ? (
         <div className="container-bb">

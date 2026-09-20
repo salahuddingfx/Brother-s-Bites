@@ -14,6 +14,7 @@ import {
   Calendar,
   Upload,
 } from 'lucide-react';
+import AdminTableSkeleton from '@/components/skeletons/AdminTableSkeleton';
 
 interface OfferForm {
   title: string;
@@ -198,9 +199,7 @@ export default function AdminOffersPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-brand-yellow" size={32} />
-        </div>
+        <AdminTableSkeleton rows={4} />
       ) : offers.length === 0 && !showForm ? (
         <div className="bg-brand-surface-light rounded-xl border border-white/10 p-12 text-center">
           <Tag size={48} className="mx-auto text-brand-cream/20 mb-4" />

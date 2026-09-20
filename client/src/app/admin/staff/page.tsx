@@ -26,6 +26,7 @@ import {
   Mail,
   User as UserIcon,
 } from 'lucide-react';
+import AdminTableSkeleton from '@/components/skeletons/AdminTableSkeleton';
 
 export default function StaffManagementPage() {
   const { user: currentUser } = useAuth();
@@ -300,10 +301,7 @@ export default function StaffManagementPage() {
       {/* Users Table */}
       <div className="bg-brand-surface border border-white/10 rounded-2xl overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center">
-            <Loader2 className="w-8 h-8 text-brand-yellow animate-spin mx-auto mb-2" />
-            <p className="text-xs text-brand-cream/60">Loading team members...</p>
-          </div>
+          <AdminTableSkeleton rows={4} />
         ) : filteredUsers.length === 0 ? (
           <div className="py-16 text-center">
             <Users className="w-10 h-10 text-brand-cream/20 mx-auto mb-2" />

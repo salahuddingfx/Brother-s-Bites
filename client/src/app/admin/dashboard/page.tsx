@@ -12,7 +12,6 @@ import {
   Tag,
   Plus,
   ArrowRight,
-  Loader2,
   ShoppingBag,
   Clock,
   TrendingUp,
@@ -30,7 +29,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedNumber from '@/components/common/AnimatedNumber';
+import Skeleton from '@/components/ui/skeleton';
+import AdminDashboardSkeleton from '@/components/skeletons/AdminDashboardSkeleton';
 import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+import { useLiveSSE } from '@/hooks/useLiveSSE';
 
 interface VisitorAnalyticsData {
   period: string;
@@ -77,6 +79,38 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<InvoiceOrderData | null>(null);
+
+  // Live SSE connection
+  const { isConnected: isLiveConnected } = useLiveSSE({
+    channel: 'admin',
+    onNewOrder: (payload) => {
+      const newOrd = payload.order;
+      if (newOrd) {
+        setRecentOrders((prev) => [newOrd, ...prev.filter((o) => o._id !== newOrd._id)].slice(0, 6));
+        setOrderStats((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalOrders: prev.totalOrders + 1,
+            pendingOrders: prev.pendingOrders + 1,
+            todayOrders: prev.todayOrders + 1,
+            todayRevenue: prev.todayRevenue + (newOrd.totalAmount || 0),
+          };
+        });
+      }
+    },
+    onOrderUpdated: (payload) => {
+      const updatedOrd = payload.order;
+      if (updatedOrd) {
+        setRecentOrders((prev) =>
+          prev.map((ord) => (ord._id === updatedOrd._id ? { ...ord, ...updatedOrd } : ord))
+        );
+        api.get('/orders/stats').then((res) => {
+          if (res.data?.data) setOrderStats(res.data.data);
+        }).catch(() => {});
+      }
+    },
+  });
 
   // Visitor analytics state with filtering
   const [visitorPeriod, setVisitorPeriod] = useState<string>('7d');
@@ -187,12 +221,7 @@ export default function AdminDashboardPage() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <Loader2 className="animate-spin text-brand-yellow" size={36} />
-        <p className="text-brand-cream/50 text-xs font-bold uppercase tracking-wider">Loading Dashboard...</p>
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   return (
@@ -214,6 +243,22 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {/* Live SSE Pulse Pill */}
+            <div className={cn(
+              'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 backdrop-blur-md',
+              isLiveConnected
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
+                : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+            )}>
+              <span className="relative flex h-2 w-2">
+                {isLiveConnected && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                )}
+                <span className={cn('relative inline-flex rounded-full h-2 w-2', isLiveConnected ? 'bg-emerald-500' : 'bg-amber-500')}></span>
+              </span>
+              <span className="font-mono text-[11px]">{isLiveConnected ? 'LIVE FEED ACTIVE' : 'CONNECTING...'}</span>
+            </div>
+
             <button
               onClick={fetchData}
               className="btn-secondary !h-9 text-xs gap-1.5 px-3.5"
@@ -366,8 +411,17 @@ export default function AdminDashboardPage() {
         </div>
 
         {loadingVisitors ? (
-          <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-6 h-6 animate-spin text-brand-yellow" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="card-bb p-4 bg-brand-black/40 border-brand-border/60 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-20 rounded" />
+                  <Skeleton className="w-7 h-7 rounded-lg" />
+                </div>
+                <Skeleton className="h-7 w-14 rounded" />
+                <Skeleton className="h-2.5 w-24 rounded" />
+              </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-6">

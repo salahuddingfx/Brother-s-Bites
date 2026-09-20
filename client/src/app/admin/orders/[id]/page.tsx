@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { Order } from '@/types';
 import { cn } from '@/lib/utils';
-import { Loader2, ArrowLeft, MapPin, Phone, Mail, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Mail, CheckCircle } from 'lucide-react';
+import OrderDetailSkeleton from '@/components/skeletons/OrderDetailSkeleton';
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: 'Pending', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
@@ -67,11 +68,7 @@ export default function AdminOrderDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin text-brand-yellow" size={32} />
-      </div>
-    );
+    return <OrderDetailSkeleton />;
   }
 
   if (!order) return null;

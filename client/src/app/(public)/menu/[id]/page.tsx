@@ -23,7 +23,7 @@ import {
 import api from '@/lib/api';
 import { MenuItem } from '@/types';
 import MenuCard from '@/components/menu/MenuCard';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import MenuItemDetailSkeleton from '@/components/skeletons/MenuItemDetailSkeleton';
 import ImageLightboxModal from '@/components/common/ImageLightboxModal';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, Check } from 'lucide-react';
@@ -137,8 +137,10 @@ export default function SingleMenuItemPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <LoadingSpinner />
+      <div className="pt-24 pb-16 sm:pb-24">
+        <div className="container-bb">
+          <MenuItemDetailSkeleton />
+        </div>
       </div>
     );
   }

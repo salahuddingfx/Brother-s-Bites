@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent, useRef } from 'react';
 import api from '@/lib/api';
 import { Settings } from '@/types';
 import { cn } from '@/lib/utils';
+import AdminFormSkeleton from '@/components/skeletons/AdminFormSkeleton';
 import {
   Loader2,
   Save,
@@ -596,11 +597,7 @@ export default function AdminSettingsPage() {
   const sectionClass = 'bg-brand-surface-light rounded-xl border border-white/10 p-6';
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin text-brand-yellow" size={32} />
-      </div>
-    );
+    return <AdminFormSkeleton />;
   }
 
   return (

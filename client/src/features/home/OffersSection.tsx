@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Tag, Calendar } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import OfferCardSkeleton from '@/components/skeletons/OfferCardSkeleton';
 import api from '@/lib/api';
 import { Offer } from '@/types';
 
@@ -31,7 +31,7 @@ export default function OffersSection() {
     return (
       <section className="section-padding bg-brand-surface border-t border-white/5">
         <div className="container-bb">
-          <LoadingSpinner />
+          <OfferCardSkeleton count={2} />
         </div>
       </section>
     );

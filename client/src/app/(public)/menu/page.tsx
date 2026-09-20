@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Search, UtensilsCrossed } from 'lucide-react';
 import api from '@/lib/api';
 import MenuCard from '@/components/menu/MenuCard';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import MenuCardSkeleton from '@/components/skeletons/MenuCardSkeleton';
 import ErrorState from '@/components/common/ErrorState';
 import EmptyState from '@/components/common/EmptyState';
 import type { MenuItem, Category } from '@/types';
@@ -126,7 +126,7 @@ export default function MenuPage() {
         </div>
 
         {/* Content Area */}
-        {loading && <LoadingSpinner />}
+        {loading && <MenuCardSkeleton count={6} />}
 
         {error && <ErrorState message={error} onRetry={() => setSelectedCategory('all')} />}
 

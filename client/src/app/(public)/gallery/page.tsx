@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ImageIcon } from 'lucide-react';
 import api from '@/lib/api';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import GalleryGridSkeleton from '@/components/skeletons/GalleryGridSkeleton';
 import EmptyState from '@/components/common/EmptyState';
 import ImageLightboxModal from '@/components/common/ImageLightboxModal';
 import type { GalleryImage } from '@/types';
@@ -94,7 +94,7 @@ export default function GalleryPage() {
           ))}
         </div>
 
-        {loading && <LoadingSpinner />}
+        {loading && <GalleryGridSkeleton count={8} />}
 
         {!loading && filtered.length === 0 && (
           <EmptyState

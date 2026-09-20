@@ -18,6 +18,7 @@ import {
 import api from '@/lib/api';
 import { Review } from '@/types';
 import { cn } from '@/lib/utils';
+import AdminTableSkeleton from '@/components/skeletons/AdminTableSkeleton';
 import StarRating from '@/components/common/StarRating';
 
 export default function AdminReviewsPage() {
@@ -238,10 +239,7 @@ export default function AdminReviewsPage() {
 
       {/* Reviews Table / Cards */}
       {loading ? (
-        <div className="card-bb p-12 text-center bg-brand-surface-light flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-yellow mb-3" />
-          <p className="text-xs text-brand-cream/50">Loading customer reviews...</p>
-        </div>
+        <AdminTableSkeleton rows={5} />
       ) : reviews.length === 0 ? (
         <div className="card-bb p-12 text-center bg-brand-surface-light border-dashed border-brand-border">
           <MessageSquare className="w-12 h-12 text-brand-cream/20 mx-auto mb-3" />
