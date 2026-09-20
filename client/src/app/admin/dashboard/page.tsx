@@ -22,10 +22,24 @@ import {
   Receipt,
   Phone,
   RefreshCw,
+  Users,
+  Globe,
+  Smartphone,
+  Laptop,
+  Compass,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedNumber from '@/components/common/AnimatedNumber';
 import InvoiceModal, { InvoiceOrderData } from '@/components/orders/InvoiceModal';
+
+interface VisitorAnalyticsData {
+  period: string;
+  totalPageviews: number;
+  uniqueVisitors: number;
+  topPages: { path: string; count: number }[];
+  deviceBreakdown: { device: string; count: number }[];
+  browserBreakdown: { browser: string; count: number }[];
+}
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: 'Pending', color: 'text-yellow-400', bg: 'bg-yellow-400/15 border-yellow-400/30' },
@@ -45,6 +59,15 @@ const nextStatusMap: Record<string, string> = {
   out_for_delivery: 'delivered',
 };
 
+const PERIODS = [
+  { id: 'today', label: 'Today' },
+  { id: 'yesterday', label: 'Yesterday' },
+  { id: '7d', label: 'Last 7 Days' },
+  { id: '30d', label: 'Last 30 Days' },
+  { id: 'this_month', label: 'This Month' },
+  { id: 'all', label: 'All Time' },
+] as const;
+
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -54,6 +77,23 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<InvoiceOrderData | null>(null);
+
+  // Visitor analytics state with filtering
+  const [visitorPeriod, setVisitorPeriod] = useState<string>('7d');
+  const [visitorStats, setVisitorStats] = useState<VisitorAnalyticsData | null>(null);
+  const [loadingVisitors, setLoadingVisitors] = useState<boolean>(false);
+
+  const fetchVisitorStats = async (period: string) => {
+    setLoadingVisitors(true);
+    try {
+      const res = await api.get(`/analytics/visitors?period=${period}`);
+      setVisitorStats(res.data?.data || null);
+    } catch {
+      // Fallback
+    } finally {
+      setLoadingVisitors(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -77,7 +117,13 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchData();
+    fetchVisitorStats(visitorPeriod);
   }, []);
+
+  const handlePeriodChange = (p: string) => {
+    setVisitorPeriod(p);
+    fetchVisitorStats(p);
+  };
 
   const handleUpdateStatus = async (orderId: string, nextStatus: string) => {
     setUpdatingOrderId(orderId);
@@ -285,6 +331,160 @@ export default function AdminDashboardPage() {
             <ArrowRight className="text-brand-cream/30 group-hover:text-yellow-400 shrink-0 transition-colors" size={15} />
           </Link>
         </div>
+      </div>
+
+      {/* Visitor Traffic & Filtering Section */}
+      <div className="card-bb p-5 sm:p-6 border border-brand-border bg-gradient-to-b from-brand-surface to-brand-surface-light shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+          <div>
+            <h2 className="text-base font-bold text-brand-cream uppercase tracking-wide flex items-center gap-2">
+              <Users size={18} className="text-brand-yellow" />
+              <span>Visitor Traffic & Customer Reach</span>
+            </h2>
+            <p className="text-xs text-brand-cream/50 mt-0.5">
+              Live website visitor analytics, pageviews, and device metrics with custom time filtering
+            </p>
+          </div>
+
+          {/* Period Filter Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap bg-brand-black/60 p-1 rounded-xl border border-white/10">
+            {PERIODS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => handlePeriodChange(p.id)}
+                className={cn(
+                  'px-3 py-1 rounded-lg text-xs font-bold transition-all',
+                  visitorPeriod === p.id
+                    ? 'bg-brand-yellow text-black shadow-md'
+                    : 'text-brand-cream/60 hover:text-brand-cream hover:bg-white/5'
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loadingVisitors ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-6 h-6 animate-spin text-brand-yellow" />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Top metric row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Unique Visitors</span>
+                  <div className="p-1.5 rounded-lg bg-blue-500/15 text-blue-400">
+                    <Users size={15} />
+                  </div>
+                </div>
+                <p className="text-2xl font-black text-brand-cream">
+                  <AnimatedNumber value={visitorStats?.uniqueVisitors || 0} />
+                </p>
+                <p className="text-[11px] text-brand-cream/40 mt-1">Filtered by: {PERIODS.find(p => p.id === visitorPeriod)?.label}</p>
+              </div>
+
+              <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Total Pageviews</span>
+                  <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400">
+                    <Globe size={15} />
+                  </div>
+                </div>
+                <p className="text-2xl font-black text-brand-cream">
+                  <AnimatedNumber value={visitorStats?.totalPageviews || 0} />
+                </p>
+                <p className="text-[11px] text-brand-cream/40 mt-1">Total visits recorded</p>
+              </div>
+
+              <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Mobile Users</span>
+                  <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400">
+                    <Smartphone size={15} />
+                  </div>
+                </div>
+                <p className="text-2xl font-black text-emerald-400">
+                  {visitorStats?.totalPageviews
+                    ? Math.round(((visitorStats.deviceBreakdown.find(d => d.device === 'mobile')?.count || 0) / visitorStats.totalPageviews) * 100)
+                    : 0}%
+                </p>
+                <p className="text-[11px] text-brand-cream/40 mt-1">Mobile device traffic</p>
+              </div>
+
+              <div className="card-bb p-4 bg-brand-black/40 border-brand-border/60">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-brand-cream/60 uppercase tracking-wider">Desktop Users</span>
+                  <div className="p-1.5 rounded-lg bg-purple-500/15 text-purple-400">
+                    <Laptop size={15} />
+                  </div>
+                </div>
+                <p className="text-2xl font-black text-purple-400">
+                  {visitorStats?.totalPageviews
+                    ? Math.round(((visitorStats.deviceBreakdown.find(d => d.device === 'desktop')?.count || 0) / visitorStats.totalPageviews) * 100)
+                    : 0}%
+                </p>
+                <p className="text-[11px] text-brand-cream/40 mt-1">Desktop & laptop traffic</p>
+              </div>
+            </div>
+
+            {/* Breakdown row: Top Pages & Browsers */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="card-bb p-4 bg-brand-black/30 border-brand-border/40">
+                <h3 className="text-xs font-bold text-brand-cream uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Compass size={14} className="text-brand-yellow" />
+                  <span>Top Visited Pages</span>
+                </h3>
+                {(!visitorStats?.topPages || visitorStats.topPages.length === 0) ? (
+                  <p className="text-brand-cream/40 text-xs py-4 text-center">No visitor hits in this period.</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {visitorStats.topPages.map((page) => {
+                      const pct = visitorStats.totalPageviews > 0
+                        ? Math.round((page.count / visitorStats.totalPageviews) * 100)
+                        : 0;
+                      return (
+                        <div key={page.path} className="text-xs">
+                          <div className="flex justify-between items-center mb-1 text-brand-cream/80 font-medium">
+                            <span className="font-mono text-brand-yellow truncate max-w-[200px]">{page.path}</span>
+                            <span className="text-[11px] text-brand-cream/50">{page.count} hits ({pct}%)</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-brand-yellow rounded-full transition-all duration-500"
+                              style={{ width: `${Math.max(pct, 4)}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="card-bb p-4 bg-brand-black/30 border-brand-border/40">
+                <h3 className="text-xs font-bold text-brand-cream uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Globe size={14} className="text-brand-yellow" />
+                  <span>Browsers & Technology</span>
+                </h3>
+                {(!visitorStats?.browserBreakdown || visitorStats.browserBreakdown.length === 0) ? (
+                  <p className="text-brand-cream/40 text-xs py-4 text-center">No browser data in this period.</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {visitorStats.browserBreakdown.map((b) => (
+                      <div key={b.browser} className="p-2.5 rounded-lg bg-brand-surface border border-white/5 flex items-center justify-between">
+                        <span className="text-xs font-medium text-brand-cream">{b.browser}</span>
+                        <span className="text-xs font-bold text-brand-yellow">{b.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Recent Orders Section */}

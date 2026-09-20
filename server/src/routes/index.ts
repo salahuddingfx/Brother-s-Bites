@@ -10,6 +10,7 @@ import orderRoutes from './order.routes';
 import uploadRoutes from './upload.routes';
 import reviewRoutes from './review.routes';
 import userRoutes from './user.routes';
+import analyticsRoutes from './analytics.routes';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/reviews', reviewRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export default router;
